@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCNA Module 8 — Netwerklaag Oefeningen</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f4f6f9; --surface:#fff; --border:#d1d9e6; --border-light:#e8ecf2;
+  --accent:#1a6ef5; --accent-bg:#eaf0ff; --accent2:#0ea86b; --accent2-bg:#e6f9f2;
+  --accent3:#e05a1a; --warn:#d97706; --warn-bg:#fef3c7;
+  --text:#1a2035; --text2:#3d4f6e; --muted:#7a8fac;
+  --ok:#0ea86b; --ok-bg:#e6f9f2; --ok-border:#6dd5ab;
+  --err:#d93025; --err-bg:#fdecea; --err-border:#f5a9a4;
+  --l2c:#7c3aed; --l2bg:#f3eeff; --l3c:#1a6ef5; --l3bg:#eaf0ff;
+  --mono:'Share Tech Mono',monospace; --sans:'Montserrat',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;font-size:15px;line-height:1.5;}
+.container{max-width:980px;margin:0 auto;padding:2rem 1.25rem 5rem;}
+
+header{text-align:center;padding:2.5rem 0 2rem;}
+.badge{display:inline-block;font-family:var(--mono);font-size:.68rem;color:var(--accent);border:1.5px solid var(--accent);padding:.25rem .9rem;letter-spacing:.15em;margin-bottom:1rem;text-transform:uppercase;border-radius:4px;background:var(--accent-bg);}
+h1{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;color:var(--text);}
+h1 span{color:var(--accent);}
+.subtitle{font-size:.8rem;color:var(--muted);margin-top:.4rem;font-family:var(--mono);}
+
+.score-bar{display:flex;gap:1.5rem;justify-content:center;align-items:center;margin-bottom:1.4rem;font-size:.82rem;font-weight:500;}
+.score-item{display:flex;align-items:center;gap:.4rem;color:var(--text2);}
+.dot{width:9px;height:9px;border-radius:50%;}
+.dot-ok{background:var(--ok);}
+.dot-err{background:var(--err);}
+.dot-pend{background:var(--muted);}
+.progress-wrap{margin-bottom:1.75rem;}
+.progress-label{font-size:.72rem;color:var(--muted);margin-bottom:.3rem;display:flex;justify-content:space-between;font-family:var(--mono);}
+.progress-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width .5s;}
+
+.tabs{display:flex;gap:0;margin-bottom:1.75rem;border:1.5px solid var(--border);border-radius:8px;overflow:hidden;background:var(--surface);}
+.tab{flex:1;padding:.65rem .3rem;text-align:center;font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.02em;cursor:pointer;background:transparent;color:var(--muted);border:none;transition:all .15s;text-transform:uppercase;}
+.tab:hover{color:var(--text);background:var(--bg);}
+.tab.active{background:var(--accent);color:#fff;}
+
+.section{display:none;}
+.section.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+.sec-title{font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:1.1rem;display:flex;align-items:center;gap:.5rem;}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* cards */
+.ex-card{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;margin-bottom:1.1rem;overflow:hidden;transition:border-color .2s;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+.ex-card.correct{border-color:var(--ok);}
+.ex-card.wrong{border-color:var(--err);}
+.ex-header{display:flex;align-items:flex-start;gap:.8rem;padding:1rem 1.3rem;border-bottom:1px solid var(--border-light);background:var(--bg);}
+.ex-num{font-family:var(--mono);font-size:.63rem;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent);padding:.18rem .45rem;border-radius:4px;white-space:nowrap;margin-top:2px;}
+.ex-q{font-size:.88rem;line-height:1.6;color:var(--text2);flex:1;}
+.ex-q strong{color:var(--text);font-weight:600;}
+.ex-q em{color:var(--muted);font-size:.8rem;}
+
+.topology{margin:.65rem 1.3rem;padding:.85rem 1rem;background:#1a2035;border-radius:6px;font-family:var(--mono);font-size:.74rem;line-height:1.9;color:#7ee8a2;white-space:pre;overflow-x:auto;}
+
+.rtable-wrap{margin:.65rem 1.3rem;overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.77rem;}
+th{background:var(--accent-bg);color:var(--accent);padding:.45rem .7rem;text-align:left;border-bottom:2px solid var(--border);font-weight:700;letter-spacing:.04em;}
+td{padding:.4rem .7rem;border-bottom:1px solid var(--border-light);color:var(--text2);}
+tr:last-child td{border-bottom:none;}
+
+.options{padding:.85rem 1.3rem;display:flex;flex-direction:column;gap:.4rem;}
+.option{display:flex;align-items:center;gap:.7rem;padding:.55rem .85rem;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;transition:all .13s;font-size:.83rem;background:var(--surface);color:var(--text2);user-select:none;}
+.option:hover:not(.disabled){border-color:var(--accent);color:var(--accent);background:var(--accent-bg);}
+.option.correct-ans{border-color:var(--ok)!important;background:var(--ok-bg)!important;color:var(--ok)!important;}
+.option.wrong-ans{border-color:var(--err)!important;background:var(--err-bg)!important;color:var(--err)!important;}
+.option.disabled{cursor:default;}
+.opt-letter{width:21px;height:21px;border-radius:4px;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0;font-family:var(--mono);font-weight:700;}
+
+.feedback{margin:0 1.3rem 1rem;padding:.65rem .9rem;border-radius:6px;font-size:.8rem;display:none;line-height:1.6;font-family:var(--mono);}
+.feedback.show{display:block;animation:fadeIn .2s;}
+.feedback.ok{background:var(--ok-bg);border:1.5px solid var(--ok-border);color:#0a7a4e;}
+.feedback.bad{background:var(--err-bg);border:1.5px solid var(--err-border);color:var(--err);}
+
+.fill-row{padding:.85rem 1.3rem;display:flex;flex-direction:column;gap:.6rem;}
+.fill-item{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;font-size:.83rem;}
+.fill-item label{color:var(--text2);min-width:185px;font-weight:500;}
+.fill-input{background:var(--bg);border:1.5px solid var(--border);color:var(--text);font-family:var(--mono);font-size:.8rem;padding:.35rem .65rem;border-radius:5px;width:170px;outline:none;transition:border-color .15s;}
+.fill-input:focus{border-color:var(--accent);}
+.fill-input.correct{border-color:var(--ok);background:var(--ok-bg);color:#0a7a4e;}
+.fill-input.wrong{border-color:var(--err);background:var(--err-bg);color:var(--err);}
+
+.check-btn{margin:.1rem 1.3rem 1rem;padding:.5rem 1.2rem;background:var(--accent);border:none;color:#fff;font-family:var(--sans);font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;border-radius:5px;transition:background .13s;}
+.check-btn:hover{background:#1258d4;}
+.reset-btn{display:block;margin:1.4rem auto 0;padding:.5rem 1.6rem;background:transparent;border:1.5px solid var(--border);color:var(--muted);font-family:var(--sans);font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border-radius:5px;transition:all .15s;}
+.reset-btn:hover{border-color:var(--accent3);color:var(--accent3);}
+
+/* ── HOP SIMULATOR ── */
+.intro-box{background:var(--accent-bg);border:1.5px solid var(--accent);border-radius:10px;padding:1rem 1.3rem;margin-bottom:1.3rem;font-size:.88rem;line-height:1.65;color:var(--text2);}
+.intro-box strong{color:var(--accent);}
+
+.diagram-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:1.3rem;overflow-x:auto;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+.diagram-wrap h3{font-family:var(--mono);font-size:.63rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:.8rem;}
+
+/* SVG styles */
+.nd{fill:#fff;stroke:#c8d4e8;stroke-width:1.5;}
+.nd.nd-hi{stroke:var(--accent);stroke-width:2.5;}
+.ndlb{font-family:'Montserrat',sans-serif;font-weight:700;font-size:10px;fill:#1a2035;text-anchor:middle;}
+.ndsub{font-family:'Share Tech Mono',monospace;font-size:8px;fill:#7a8fac;text-anchor:middle;}
+.ndmac{font-family:'Share Tech Mono',monospace;font-size:7.5px;fill:#3d4f6e;text-anchor:middle;}
+.lk{stroke:#c8d4e8;stroke-width:2;}
+.lk.lk-hi{stroke:var(--accent);stroke-width:3;}
+.smac-bg{fill:#f4f6f9;stroke:#c8d4e8;stroke-width:1;}
+.smac-h{font-family:'Share Tech Mono',monospace;font-size:7.5px;font-weight:700;fill:#1a2035;}
+.smac-k{font-family:'Share Tech Mono',monospace;font-size:7px;fill:#3d4f6e;}
+.smac-v{font-family:'Share Tech Mono',monospace;font-size:7px;fill:#0a7a4e;font-weight:700;}
+.smac-e{font-family:'Share Tech Mono',monospace;font-size:7.5px;fill:#aab8cc;}
+.pktdot{transition:cx .5s cubic-bezier(.4,0,.2,1),cy .5s cubic-bezier(.4,0,.2,1);}
+
+/* Step card */
+.step-card{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;margin-bottom:1rem;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05);animation:fadeIn .3s;}
+.step-card.s-ok{border-color:var(--ok);opacity:.65;}
+.step-card.s-err{border-color:var(--err);}
+.step-hdr{display:flex;align-items:center;gap:.6rem;padding:.8rem 1.1rem;border-bottom:1px solid var(--border-light);background:var(--bg);}
+.step-num{font-family:var(--mono);font-size:.63rem;font-weight:700;background:var(--accent-bg);color:var(--accent);padding:.16rem .45rem;border-radius:4px;border:1px solid var(--accent);}
+.step-tit{font-weight:700;font-size:.86rem;color:var(--text);flex:1;}
+.bl3{font-size:.63rem;font-weight:700;background:var(--l3bg);color:var(--l3c);padding:.16rem .45rem;border-radius:4px;}
+.bl2{font-size:.63rem;font-weight:700;background:var(--l2bg);color:var(--l2c);padding:.16rem .45rem;border-radius:4px;}
+.bmac{font-size:.63rem;font-weight:700;background:#fff7ed;color:#c2410c;padding:.16rem .45rem;border-radius:4px;}
+.step-body{padding:.85rem 1.1rem;}
+.step-desc{font-size:.86rem;line-height:1.65;color:var(--text2);margin-bottom:.8rem;}
+.step-desc strong{color:var(--text);font-weight:600;}
+.step-fields{display:flex;flex-direction:column;gap:.5rem;margin-bottom:.8rem;}
+.step-field{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;}
+.step-field label{font-size:.8rem;font-weight:600;color:var(--text2);min-width:170px;}
+.ssel{background:var(--bg);border:1.5px solid var(--border);color:var(--text);font-family:var(--mono);font-size:.78rem;padding:.32rem .55rem;border-radius:5px;outline:none;cursor:pointer;transition:border-color .15s;min-width:215px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a8fac'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right .55rem center;padding-right:1.7rem;appearance:none;}
+.ssel:focus{border-color:var(--accent);}
+.ssel.s-ok{border-color:var(--ok);background-color:var(--ok-bg);color:#0a7a4e;}
+.ssel.s-err{border-color:var(--err);background-color:var(--err-bg);color:var(--err);}
+.ssel:disabled{opacity:.6;cursor:default;}
+.mac-rg{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;padding:.38rem .6rem;background:var(--bg);border-radius:6px;border:1px solid var(--border-light);}
+.mac-rl{font-family:var(--mono);font-size:.72rem;color:var(--muted);font-weight:700;min-width:40px;}
+.step-chk{padding:.46rem 1.1rem;background:var(--accent);border:none;color:#fff;font-family:var(--sans);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;border-radius:5px;transition:background .13s;}
+.step-chk:hover{background:#1258d4;}
+.step-fb{margin-top:.7rem;padding:.6rem .85rem;border-radius:6px;font-family:var(--mono);font-size:.78rem;display:none;line-height:1.6;}
+.step-fb.show{display:block;}
+.step-fb.ok{background:var(--ok-bg);border:1.5px solid var(--ok-border);color:#0a7a4e;}
+.step-fb.bad{background:var(--err-bg);border:1.5px solid var(--err-border);color:var(--err);}
+
+.sim-summary{background:var(--ok-bg);border:2px solid var(--ok);border-radius:10px;padding:1.1rem 1.4rem;margin-top:.9rem;display:none;}
+.sim-summary.show{display:block;animation:fadeIn .4s;}
+.sim-summary h3{font-size:1rem;font-weight:700;color:var(--ok);margin-bottom:.6rem;}
+.sim-summary p{font-size:.85rem;line-height:1.7;color:var(--text2);}
+
+/* ── FLOODING LAB ── */
+.flab-intro{background:var(--warn-bg);border:1.5px solid #fcd34d;border-radius:10px;padding:1rem 1.3rem;margin-bottom:1.3rem;font-size:.87rem;line-height:1.65;color:var(--text2);}
+.flab-intro strong{color:var(--warn);}
+.pkt-tag{display:inline-block;font-family:var(--mono);font-size:.7rem;font-weight:700;padding:.18rem .5rem;border-radius:4px;border:1.5px solid currentColor;margin-right:.3rem;}
+.pkt-tag.local{background:#eff6ff;color:#2563eb;border-color:#93c5fd;}
+.pkt-tag.routed{background:#fdf2f8;color:#9333ea;border-color:#d8b4fe;}
+.pkt-tag.broadcast{background:var(--warn-bg);color:var(--warn);border-color:#fcd34d;}
+.pkt-tag.filter{background:#f0fdf4;color:#15803d;border-color:#86efac;}
+.flab-pkt-hdr{display:flex;align-items:center;gap:.6rem;padding:.75rem 1.1rem;background:var(--bg);border-bottom:1px solid var(--border-light);}
+.flab-pkt-tit{font-weight:700;font-size:.86rem;color:var(--text);flex:1;}
+.mac-panel{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:1rem;}
+.mac-panel-hdr{background:var(--text);color:#fff;padding:.45rem .85rem;font-size:.7rem;font-weight:700;letter-spacing:.06em;font-family:var(--mono);}
+.mac-pt{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.76rem;}
+.mac-pt th{background:var(--bg);color:var(--muted);padding:.35rem .7rem;border-bottom:1px solid var(--border);font-weight:600;font-size:.68rem;letter-spacing:.05em;}
+.mac-pt td{padding:.32rem .7rem;border-bottom:1px solid var(--border-light);color:var(--text2);}
+.mac-pt tr:last-child td{border-bottom:none;}
+
+@media(max-width:580px){
+  .tabs .tab{font-size:.62rem;padding:.58rem .15rem;}
+  .step-field label{min-width:0;width:100%;}
+  .ssel{min-width:0;width:100%;}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="badge">CCNA — Module 8</div>
+  <h1>Netwerklaag <span>Oefeningen</span></h1>
+  <p class="subtitle">// pakket_tracering · routeringstabellen · hop_simulator · mac_flooding_lab</p>
+</header>
+
+<div class="score-bar">
+  <div class="score-item"><div class="dot dot-ok"></div><span id="score-ok">0</span> correct</div>
+  <div class="score-item"><div class="dot dot-err"></div><span id="score-err">0</span> fout</div>
+  <div class="score-item"><div class="dot dot-pend"></div><span id="score-pend">39</span> resterend</div>
+</div>
+<div class="progress-wrap">
+  <div class="progress-label"><span>Voortgang</span><span id="pct">0%</span></div>
+  <div class="progress-bar"><div class="progress-fill" id="pbar" style="width:0%"></div></div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('trace')">📡 Pakket Tracering</button>
+  <button class="tab" onclick="switchTab('routing')">🗺️ Routeringstabellen</button>
+  <button class="tab" onclick="switchTab('sim')">🔬 Netwerk simulator 1</button>
+  <button class="tab" onclick="switchTab('flood')">🌊 Netwerk simulator 2</button>
+</div>
+
+<!-- ═══ TAB 1: PAKKET TRACERING ═══ -->
+<div class="section active" id="sec-trace">
+  <div class="sec-title">Pakket Tracering Scenario's</div>
+
+  <div class="ex-card" id="card-t1"><div class="ex-header"><span class="ex-num">T-01</span>
+    <div class="ex-q">PC-A (<strong>192.168.1.10</strong>) stuurt een pakket naar PC-B (<strong>192.168.2.20</strong>) via router R1. Op welke OSI-laag neemt R1 zijn doorstuurbeslis­sing?</div></div>
+    <div class="options" id="opts-t1">
+      <div class="option" onclick="pick('t1','A')"><span class="opt-letter">A</span>Laag 2 — Datalinklaag (MAC-adres)</div>
+      <div class="option" onclick="pick('t1','B')"><span class="opt-letter">B</span>Laag 3 — Netwerklaag (IP-adres)</div>
+      <div class="option" onclick="pick('t1','C')"><span class="opt-letter">C</span>Laag 4 — Transportlaag (poortnummer)</div>
+      <div class="option" onclick="pick('t1','D')"><span class="opt-letter">D</span>Laag 1 — Fysieke laag (signaal)</div>
+    </div><div class="feedback" id="fb-t1"></div></div>
+
+  <div class="ex-card" id="card-t2"><div class="ex-header"><span class="ex-num">T-02</span>
+    <div class="ex-q">PC-A stuurt een pakket naar een server op een <strong>ander netwerk</strong>. Welk <strong>doel-MAC-adres</strong> gebruikt PC-A in het ethernet-frame?</div></div>
+    <div class="options" id="opts-t2">
+      <div class="option" onclick="pick('t2','A')"><span class="opt-letter">A</span>Het MAC-adres van de bestemmingsserver</div>
+      <div class="option" onclick="pick('t2','B')"><span class="opt-letter">B</span>Een broadcast-MAC (FF:FF:FF:FF:FF:FF)</div>
+      <div class="option" onclick="pick('t2','C')"><span class="opt-letter">C</span>Het MAC-adres van de standaardgateway (router)</div>
+      <div class="option" onclick="pick('t2','D')"><span class="opt-letter">D</span>Zijn eigen MAC-adres</div>
+    </div><div class="feedback" id="fb-t2"></div></div>
+
+  <div class="ex-card" id="card-t3"><div class="ex-header"><span class="ex-num">T-03</span>
+    <div class="ex-q">Wat gebeurt er met de <strong>IP-header</strong> als een pakket elke router passeert?</div></div>
+    <div class="topology">  [Host A]──────[R1]══════════[R2]──────[Host B]
+  192.168.1.5    .1      .2    .1      .2  10.0.0.5</div>
+    <div class="options" id="opts-t3">
+      <div class="option" onclick="pick('t3','A')"><span class="opt-letter">A</span>Bron- en doel-IP worden bij elke hop vervangen</div>
+      <div class="option" onclick="pick('t3','B')"><span class="opt-letter">B</span>De IP-header blijft van begin tot eind ongewijzigd; alleen het frame (Laag 2) verandert</div>
+      <div class="option" onclick="pick('t3','C')"><span class="opt-letter">C</span>Het TTL-veld wordt bij elke router met 1 verhoogd</div>
+      <div class="option" onclick="pick('t3','D')"><span class="opt-letter">D</span>De IP-header wordt volledig verwijderd en opnieuw opgebouwd</div>
+    </div><div class="feedback" id="fb-t3"></div></div>
+
+  <div class="ex-card" id="card-t4"><div class="ex-header"><span class="ex-num">T-04</span>
+    <div class="ex-q">Een pakket arriveert bij een router met <strong>TTL = 1</strong>. Wat doet de router?</div></div>
+    <div class="options" id="opts-t4">
+      <div class="option" onclick="pick('t4','A')"><span class="opt-letter">A</span>Stuurt het normaal door</div>
+      <div class="option" onclick="pick('t4','B')"><span class="opt-letter">B</span>Verlaagt TTL naar 0, gooit het pakket weg, stuurt ICMP "Time Exceeded" naar de bron</div>
+      <div class="option" onclick="pick('t4','C')"><span class="opt-letter">C</span>Reset TTL naar 128 en stuurt het pakket door</div>
+      <div class="option" onclick="pick('t4','D')"><span class="opt-letter">D</span>Stuurt het pakket ongewijzigd terug naar de bron</div>
+    </div><div class="feedback" id="fb-t4"></div></div>
+
+  <div class="ex-card" id="card-t5"><div class="ex-header"><span class="ex-num">T-05</span>
+    <div class="ex-q">Host A pingt Host B op <strong>hetzelfde subnet</strong> (192.168.1.0/24). Welk apparaat stuurt dit pakket door?</div></div>
+    <div class="options" id="opts-t5">
+      <div class="option" onclick="pick('t5','A')"><span class="opt-letter">A</span>De standaardgateway router</div>
+      <div class="option" onclick="pick('t5','B')"><span class="opt-letter">B</span>Geen router nodig — de switch handelt dit af op Laag 2</div>
+      <div class="option" onclick="pick('t5','C')"><span class="opt-letter">C</span>Een firewall inspecteert en stuurt het pakket door</div>
+      <div class="option" onclick="pick('t5','D')"><span class="opt-letter">D</span>De DNS-server lost het op en stuurt het door</div>
+    </div><div class="feedback" id="fb-t5"></div></div>
+  <button class="reset-btn" onclick="resetMCQ(['t1','t2','t3','t4','t5'])">↺ Reset</button>
+</div>
+
+<!-- ═══ TAB 2: ROUTERINGSTABELLEN ═══ -->
+<div class="section" id="sec-routing">
+  <div class="sec-title">Routeringstabel Oefeningen</div>
+
+  <div class="ex-card" id="card-r1"><div class="ex-header"><span class="ex-num">R-01</span>
+    <div class="ex-q">Pakket voor <strong>10.0.3.45</strong> arriveert bij R1. Welke route wint?</div></div>
+    <div class="rtable-wrap"><table>
+      <tr><th>Code</th><th>Netwerk</th><th>Masker</th><th>Volgende Hop</th><th>Interface</th></tr>
+      <tr><td>C</td><td>192.168.1.0</td><td>/24</td><td>—</td><td>Gi0/0</td></tr>
+      <tr><td>S</td><td>10.0.0.0</td><td>/8</td><td>172.16.0.1</td><td>Gi0/1</td></tr>
+      <tr><td>S</td><td>10.0.3.0</td><td>/24</td><td>172.16.0.2</td><td>Gi0/1</td></tr>
+      <tr><td>S*</td><td>0.0.0.0</td><td>/0</td><td>172.16.0.254</td><td>Gi0/1</td></tr>
+    </table></div>
+    <div class="options" id="opts-r1">
+      <div class="option" onclick="pick('r1','A')"><span class="opt-letter">A</span>10.0.0.0/8 via 172.16.0.1</div>
+      <div class="option" onclick="pick('r1','B')"><span class="opt-letter">B</span>10.0.3.0/24 via 172.16.0.2 — langste prefix-match</div>
+      <div class="option" onclick="pick('r1','C')"><span class="opt-letter">C</span>0.0.0.0/0 via 172.16.0.254 (standaardroute)</div>
+      <div class="option" onclick="pick('r1','D')"><span class="opt-letter">D</span>192.168.1.0/24 — pakket wordt weggegooid</div>
+    </div><div class="feedback" id="fb-r1"></div></div>
+
+  <div class="ex-card" id="card-r2"><div class="ex-header"><span class="ex-num">R-02</span>
+    <div class="ex-q">Wat betekent de code <strong>"C"</strong> naast een route in een Cisco-routeringstabel?</div></div>
+    <div class="options" id="opts-r2">
+      <div class="option" onclick="pick('r2','A')"><span class="opt-letter">A</span>De route is geleerd via OSPF</div>
+      <div class="option" onclick="pick('r2','B')"><span class="opt-letter">B</span>Het netwerk is rechtstreeks verbonden met een router-interface</div>
+      <div class="option" onclick="pick('r2','C')"><span class="opt-letter">C</span>Er is een statische route handmatig geconfigureerd</div>
+      <div class="option" onclick="pick('r2','D')"><span class="opt-letter">D</span>De route is momenteel inactief</div>
+    </div><div class="feedback" id="fb-r2"></div></div>
+
+  <div class="ex-card" id="card-r3"><div class="ex-header"><span class="ex-num">R-03</span>
+    <div class="ex-q">Vul de <strong>volgende hop</strong> in voor elk doel-IP. Typ het IP of "direct".</div></div>
+     <div class="rtable-wrap"><table>
+      <tr><th>Code</th><th>Netwerk</th><th>Masker</th><th>Volgende Hop</th><th>Interface</th></tr>
+      <tr><td>C</td><td>192.168.10.0</td><td>/24</td><td>—</td><td>Gi0/0</td></tr>
+      <tr><td>S</td><td>172.16.0.0</td><td>/16</td><td>192.168.10.1</td><td>Gi0/1</td></tr>
+      <tr><td>S</td><td>10.10.10.0</td><td>/24</td><td>192.168.10.2</td><td>Gi0/1</td></tr>
+      <tr><td>S*</td><td>0.0.0.0</td><td>/0</td><td>192.168.10.254</td><td>Gi0/1</td></tr>
+    </table></div>
+    <div class="fill-row">
+      <div class="fill-item"><label>Doel: 192.168.10.55</label><input class="fill-input" id="r3-1" placeholder="volgende hop..." autocomplete="off" spellcheck="false"></div>
+      <div class="fill-item"><label>Doel: 172.16.5.100</label><input class="fill-input" id="r3-2" placeholder="volgende hop..." autocomplete="off" spellcheck="false"></div>
+      <div class="fill-item"><label>Doel: 10.10.10.1</label><input class="fill-input" id="r3-3" placeholder="volgende hop..." autocomplete="off" spellcheck="false"></div>
+      <div class="fill-item"><label>Doel: 8.8.8.8</label><input class="fill-input" id="r3-4" placeholder="volgende hop..." autocomplete="off" spellcheck="false"></div>
+    </div>
+    <button class="check-btn" onclick="checkFill()">Controleren</button>
+    <div class="feedback" id="fb-r3"></div></div>
+
+  <div class="ex-card" id="card-r4"><div class="ex-header"><span class="ex-num">R-04</span>
+    <div class="ex-q">Geen overeenkomende route, geen standaardroute. Wat doet de router?</div></div>
+    <div class="options" id="opts-r4">
+      <div class="option" onclick="pick('r4','A')"><span class="opt-letter">A</span>Pakket geflooded via alle interfaces</div>
+      <div class="option" onclick="pick('r4','B')"><span class="opt-letter">B</span>Pakket weggegooid + ICMP Destination Unreachable naar bron</div>
+      <div class="option" onclick="pick('r4','C')"><span class="opt-letter">C</span>Wacht 30 seconden op een route</div>
+      <div class="option" onclick="pick('r4','D')"><span class="opt-letter">D</span>Pakket ongewijzigd teruggestuurd naar afzender</div>
+    </div><div class="feedback" id="fb-r4"></div></div>
+
+  <div class="ex-card" id="card-r5"><div class="ex-header"><span class="ex-num">R-05</span>
+    <div class="ex-q">Doel van een <strong>standaardroute 0.0.0.0/0</strong>?</div></div>
+    <div class="options" id="opts-r5">
+      <div class="option" onclick="pick('r5','A')"><span class="opt-letter">A</span>Alleen voor lokaal netwerkverkeer</div>
+      <div class="option" onclick="pick('r5','B')"><span class="opt-letter">B</span>Matcht elk doeladres als er geen specifiekere route bestaat — "gateway of last resort"</div>
+      <div class="option" onclick="pick('r5','C')"><span class="opt-letter">C</span>Vertelt de router om DHCP te gebruiken</div>
+      <div class="option" onclick="pick('r5','D')"><span class="opt-letter">D</span>Alleen voor IPv6-verkeer</div>
+    </div><div class="feedback" id="fb-r5"></div></div>
+  <button class="reset-btn" onclick="resetMCQ(['r1','r2','r4','r5']);resetFill();">↺ Reset</button>
+</div>
+
+<!-- ═══ TAB 3: HOP SIMULATOR ═══ -->
+<div class="section" id="sec-sim">
+  <div class="sec-title">Hop-voor-Hop Netwerk Simulator</div>
+  <div class="intro-box"><strong>Scenario:</strong> PC-A haalt een webpagina op van Server-S. Volg het pakket stap voor stap. Elke volgende vraag verschijnt pas na een correct antwoord. </div>
+
+  <div class="diagram-wrap">
+    <h3>Netwerktopologie — MAC-tabel SW1 wordt live bijgewerkt</h3>
+    <svg id="simsvg" viewBox="0 0 820 185" width="100%" height="auto">
+      <line class="lk" id="slk1" x1="88" y1="92" x2="175" y2="92"/>
+      <line class="lk" id="slk2" x1="248" y1="92" x2="326" y2="92"/>
+      <line class="lk" id="slk3" x1="386" y1="92" x2="456" y2="92"/>
+      <line class="lk" id="slk4" x1="516" y1="92" x2="594" y2="92"/>
+      <text x="131" y="82" class="ndsub">192.168.1.x/24</text>
+      <text x="287" y="82" class="ndsub">Fa0/2↔Gi0/0</text>
+      <text x="421" y="82" class="ndsub">10.0.0.0/30</text>
+      <text x="555" y="82" class="ndsub">10.0.1.x/24</text>
+      <!-- port labels -->
+      <text x="178" y="103" font-family="Share Tech Mono" font-size="7" fill="#aab8cc">Fa0/1</text>
+      <text x="244" y="103" font-family="Share Tech Mono" font-size="7" fill="#aab8cc" text-anchor="end">Fa0/2</text>
+      <!-- PC-A -->
+      <rect class="nd" id="snd-pc" x="28" y="62" width="60" height="60" rx="7"/>
+      <text x="58" y="84" font-size="17" text-anchor="middle">💻</text>
+      <text class="ndlb" x="58" y="100">PC-A</text>
+      <text class="ndsub" x="58" y="111">192.168.1.10</text>
+      <text class="ndmac" x="58" y="121">AA:AA:AA:AA</text>
+      <!-- SW1 -->
+      <rect class="nd" id="snd-sw" x="175" y="62" width="73" height="60" rx="7"/>
+      <text x="211" y="84" font-size="17" text-anchor="middle">🔀</text>
+      <text class="ndlb" x="211" y="100">SW1</text>
+      <text class="ndsub" x="211" y="111">Switch</text>
+      <text class="ndsub" x="211" y="121">(Laag 2)</text>
+      <!-- R1 -->
+      <rect class="nd" id="snd-r1" x="326" y="62" width="60" height="60" rx="7"/>
+      <text x="356" y="84" font-size="17" text-anchor="middle">🔁</text>
+      <text class="ndlb" x="356" y="100">R1</text>
+      <text class="ndsub" x="356" y="111">192.168.1.1</text>
+      <text class="ndmac" x="356" y="121">BB:BB:BB:BB</text>
+      <!-- R2 -->
+      <rect class="nd" id="snd-r2" x="456" y="62" width="60" height="60" rx="7"/>
+      <text x="486" y="84" font-size="17" text-anchor="middle">🔁</text>
+      <text class="ndlb" x="486" y="100">R2</text>
+      <text class="ndsub" x="486" y="111">10.0.1.1</text>
+      <text class="ndmac" x="486" y="121">CC:CC:CC:CC</text>
+      <!-- Server -->
+      <rect class="nd" id="snd-sv" x="594" y="62" width="66" height="60" rx="7"/>
+      <text x="627" y="84" font-size="17" text-anchor="middle">🖥️</text>
+      <text class="ndlb" x="627" y="100">Server-S</text>
+      <text class="ndsub" x="627" y="111">10.0.1.50</text>
+      <text class="ndmac" x="627" y="121">DD:DD:DD:DD</text>
+      <!-- packet -->
+      <circle class="pktdot" id="spkt" cx="58" cy="92" r="7" fill="#d97706" opacity="0"/>
+      <!-- MAC table -->
+      <rect class="smac-bg" x="678" y="22" width="132" height="148" rx="6"/>
+      <text class="smac-h" x="744" y="38" text-anchor="middle">SW1 MAC-TABEL</text>
+      <line x1="678" y1="43" x2="810" y2="43" stroke="#c8d4e8"/>
+      <text class="smac-k" x="686" y="55" font-weight="700" fill="#7a8fac">MAC</text>
+      <text class="smac-k" x="762" y="55" font-weight="700" fill="#7a8fac">POORT</text>
+      <line x1="678" y1="59" x2="810" y2="59" stroke="#c8d4e8" stroke-width=".5"/>
+      <text id="smt-empty" class="smac-e" x="744" y="95" text-anchor="middle">leeg</text>
+      <g id="smt-r1" opacity="0"><text id="smt-r1m" class="smac-v" x="686" y="74">—</text><text id="smt-r1p" class="smac-v" x="762" y="74">—</text></g>
+      <g id="smt-r2" opacity="0"><text id="smt-r2m" class="smac-v" x="686" y="88">—</text><text id="smt-r2p" class="smac-v" x="762" y="88">—</text></g>
+      <polyline points="248,92 258,92 258,170 672,170 672,92 678,92" fill="none" stroke="#c8d4e8" stroke-width="1" stroke-dasharray="4,3"/>
+    </svg>
+  </div>
+
+  <div id="sim-steps"></div>
+  <div class="sim-summary" id="sim-summary">
+    <h3>🎉 Pakket aangekomen bij Server-S!</h3>
+    <p>• Bron-IP en doel-IP bleven <em>bij elke hop ongewijzigd</em>.<br>
+    • MAC-adressen veranderden bij elke hop — alleen geldig per segment.<br>
+    • SW1 leerde MAC-adressen passief via inkomende frames.<br>
+    • Routers verwijderen de Laag-2-inkapseling, lezen het IP en bouwen een nieuw frame.</p>
+  </div>
+  <button class="reset-btn" onclick="resetSim()">↺ Reset Simulator</button>
+</div>
+
+<!-- ═══ TAB 4: NETWERK LAB ═══ -->
+<div class="section" id="sec-flood">
+  <div class="sec-title">Gecombineerd Netwerk Lab — L2 + L3</div>
+
+  <div class="flab-intro">
+    <strong>Scenario:</strong> Het netwerk hieronder heeft twee LAN-segmenten, twee routers en vijf eindapparaten.
+    Alle MAC-tabellen starten <strong>leeg</strong>. Volg vier pakketten stap voor stap: voor elk pakket bepaal je
+    welke IP-adressen worden gebruikt (L3), welke MAC-adressen per hop (L2),
+    en hoe de MAC-tabellen van SW1 en SW2 veranderen.
+  </div>
+
+  <!-- topology diagram -->
+  <div class="diagram-wrap" style="margin-bottom:1.1rem;">
+    <h3>Netwerktopologie</h3>
+    <svg id="fsvg" viewBox="0 0 860 310" width="100%" height="auto">
+
+      <!-- ── LAN 1: 192.168.1.0/24 ── -->
+      <!-- SW1 -->
+      <rect class="nd" id="fn-sw1" x="200" y="130" width="80" height="55" rx="7"/>
+      <text x="240" y="150" font-size="16" text-anchor="middle">🔀</text>
+      <text class="ndlb" x="240" y="165">SW1</text>
+      <text class="ndsub" x="240" y="176">LAN 1</text>
+
+      <!-- PC-A -->
+      <line class="lk" id="fl-a-sw1" x1="200" y1="145" x2="90" y2="80"/>
+      <rect class="nd" id="fn-pca" x="30" y="48" width="60" height="62" rx="7"/>
+      <text x="60" y="67" font-size="15" text-anchor="middle">💻</text>
+      <text class="ndlb" x="60" y="81">PC-A</text>
+      <text class="ndsub" x="60" y="92">192.168.1.10</text>
+      <text class="ndmac" x="60" y="102">AA:AA · Fa0/1</text>
+
+      <!-- PC-B -->
+      <line class="lk" id="fl-b-sw1" x1="200" y1="158" x2="90" y2="200"/>
+      <rect class="nd" id="fn-pcb" x="30" y="170" width="60" height="62" rx="7"/>
+      <text x="60" y="189" font-size="15" text-anchor="middle">💻</text>
+      <text class="ndlb" x="60" y="203">PC-B</text>
+      <text class="ndsub" x="60" y="214">192.168.1.20</text>
+      <text class="ndmac" x="60" y="224">BB:BB · Fa0/2</text>
+
+      <!-- PC-C -->
+      <line class="lk" id="fl-c-sw1" x1="240" y1="185" x2="240" y2="250"/>
+      <rect class="nd" id="fn-pcc" x="210" y="250" width="60" height="55" rx="7"/>
+      <text x="240" y="268" font-size="15" text-anchor="middle">💻</text>
+      <text class="ndlb" x="240" y="282">PC-C</text>
+      <text class="ndsub" x="240" y="292">192.168.1.30</text>
+      <text class="ndmac" x="240" y="300">CC:CC · Fa0/3</text>
+
+      <!-- R1 (gateway LAN1) -->
+      <line class="lk" id="fl-sw1-r1" x1="280" y1="157" x2="360" y2="157"/>
+      <rect class="nd" id="fn-r1" x="360" y="130" width="68" height="55" rx="7"/>
+      <text x="394" y="150" font-size="15" text-anchor="middle">🔁</text>
+      <text class="ndlb" x="394" y="164">R1</text>
+      <text class="ndsub" x="394" y="174">Gi0/0: .1.1</text>
+      <text class="ndmac" x="394" y="183">RR:RR·Fa0/4</text>
+
+      <!-- subnet label LAN1 -->
+      <text x="155" y="120" font-family="Share Tech Mono" font-size="7.5" fill="#7a8fac" text-anchor="middle">192.168.1.0/24</text>
+      <text x="320" y="148" font-family="Share Tech Mono" font-size="7" fill="#aab8cc" text-anchor="middle">Fa0/4↔Gi0/0</text>
+
+      <!-- ── WAN link R1–R2 ── -->
+      <line class="lk" id="fl-r1-r2" x1="428" y1="157" x2="506" y2="157"/>
+      <text x="467" y="147" font-family="Share Tech Mono" font-size="7.5" fill="#7a8fac" text-anchor="middle">10.0.0.0/30</text>
+      <text x="440" y="167" font-family="Share Tech Mono" font-size="7" fill="#aab8cc">Gi0/1</text>
+      <text x="500" y="167" font-family="Share Tech Mono" font-size="7" fill="#aab8cc" text-anchor="end">Gi0/1</text>
+
+      <!-- R2 (gateway LAN2) -->
+      <rect class="nd" id="fn-r2" x="506" y="130" width="68" height="55" rx="7"/>
+      <text x="540" y="150" font-size="15" text-anchor="middle">🔁</text>
+      <text class="ndlb" x="540" y="164">R2</text>
+      <text class="ndsub" x="540" y="174">Gi0/0: .2.1</text>
+      <text class="ndmac" x="540" y="183">SS:SS</text>
+
+      <!-- ── LAN 2: 192.168.2.0/24 ── -->
+      <!-- SW2 -->
+      <line class="lk" id="fl-r2-sw2" x1="574" y1="157" x2="650" y2="157"/>
+      <rect class="nd" id="fn-sw2" x="650" y="130" width="80" height="55" rx="7"/>
+      <text x="690" y="150" font-size="16" text-anchor="middle">🔀</text>
+      <text class="ndlb" x="690" y="165">SW2</text>
+      <text class="ndsub" x="690" y="176">LAN 2</text>
+
+      <text x="612" y="148" font-family="Share Tech Mono" font-size="7" fill="#aab8cc" text-anchor="middle">Gi0/0↔Fa0/1</text>
+      <text x="690" y="120" font-family="Share Tech Mono" font-size="7.5" fill="#7a8fac" text-anchor="middle">192.168.2.0/24</text>
+
+      <!-- PC-D -->
+      <line class="lk" id="fl-d-sw2" x1="730" y1="145" x2="800" y2="80"/>
+      <rect class="nd" id="fn-pcd" x="770" y="48" width="62" height="62" rx="7"/>
+      <text x="801" y="67" font-size="15" text-anchor="middle">💻</text>
+      <text class="ndlb" x="801" y="81">PC-D</text>
+      <text class="ndsub" x="801" y="92">192.168.2.10</text>
+      <text class="ndmac" x="801" y="102">DD:DD · Fa0/2</text>
+
+      <!-- PC-E -->
+      <line class="lk" id="fl-e-sw2" x1="730" y1="168" x2="800" y2="230"/>
+      <rect class="nd" id="fn-pce" x="770" y="200" width="62" height="62" rx="7"/>
+      <text x="801" y="219" font-size="15" text-anchor="middle">💻</text>
+      <text class="ndlb" x="801" y="233">PC-E</text>
+      <text class="ndsub" x="801" y="244">192.168.2.20</text>
+      <text class="ndmac" x="801" y="254">EE:EE · Fa0/3</text>
+
+      <!-- packet marker -->
+      <circle id="fpkt" cx="-20" cy="-20" r="8" fill="#d97706" opacity="0" style="transition:cx .5s ease,cy .5s ease;"/>
+
+    </svg>
+  </div>
+
+  <!-- live MAC tables + legend -->
+  <div style="display:flex;gap:.75rem;margin-bottom:1.1rem;flex-wrap:wrap;">
+    <div class="mac-panel" style="flex:1;min-width:200px;">
+      <div class="mac-panel-hdr">SW1 — MAC-tabel (live)</div>
+      <table class="mac-pt">
+        <tr><th>MAC</th><th>Poort</th><th>Apparaat</th></tr>
+        <tbody id="sw1-tbody"><tr><td colspan="3" style="color:var(--muted);text-align:center;font-style:italic;padding:.5rem">leeg</td></tr></tbody>
+      </table>
+    </div>
+    <div class="mac-panel" style="flex:1;min-width:200px;">
+      <div class="mac-panel-hdr">SW2 — MAC-tabel (live)</div>
+      <table class="mac-pt">
+        <tr><th>MAC</th><th>Poort</th><th>Apparaat</th></tr>
+        <tbody id="sw2-tbody"><tr><td colspan="3" style="color:var(--muted);text-align:center;font-style:italic;padding:.5rem">leeg</td></tr></tbody>
+      </table>
+    </div>
+    <div style="flex:1;min-width:185px;background:var(--warn-bg);border:1.5px solid #fcd34d;border-radius:8px;padding:.8rem .9rem;font-size:.78rem;line-height:1.75;color:var(--text2);">
+      <strong style="color:var(--warn);display:block;margin-bottom:.3rem;">📖 Begrippen</strong>
+      <b>Leren:</b> bron-MAC + inkomende poort.<br>
+      <b>Forwarden:</b> doel-MAC bekend → gericht sturen.<br>
+      <b>Flooden:</b> doel-MAC onbekend → alle poorten behalve inkomend.<br>
+      <b>L3 IP:</b> ongewijzigd van eind tot eind.<br>
+      <b>L2 MAC:</b> nieuw per netwerksegment.
+    </div>
+  </div>
+
+  <!-- reference table -->
+  <div class="diagram-wrap" style="margin-bottom:1.25rem;padding:.85rem 1rem;">
+    <h3>Adressentabel — gebruik dit als referentie</h3>
+    <table style="font-family:var(--mono);font-size:.77rem;width:100%;border-collapse:collapse;">
+      <tr><th style="background:var(--accent-bg);color:var(--accent);padding:.38rem .65rem;border-bottom:2px solid var(--border);text-align:left">Apparaat</th>
+          <th style="background:var(--accent-bg);color:var(--accent);padding:.38rem .65rem;border-bottom:2px solid var(--border);text-align:left">IP-adres</th>
+          <th style="background:var(--accent-bg);color:var(--accent);padding:.38rem .65rem;border-bottom:2px solid var(--border);text-align:left">MAC-adres</th>
+          <th style="background:var(--accent-bg);color:var(--accent);padding:.38rem .65rem;border-bottom:2px solid var(--border);text-align:left">Verbonden aan</th></tr>
+      <tr><td style="padding:.32rem .65rem;border-bottom:1px solid var(--border-light)">PC-A</td><td>192.168.1.10</td><td>AA:AA:AA:AA</td><td>SW1 Fa0/1</td></tr>
+      <tr><td style="padding:.32rem .65rem;border-bottom:1px solid var(--border-light)">PC-B</td><td>192.168.1.20</td><td>BB:BB:BB:BB</td><td>SW1 Fa0/2</td></tr>
+      <tr><td style="padding:.32rem .65rem;border-bottom:1px solid var(--border-light)">PC-C</td><td>192.168.1.30</td><td>CC:CC:CC:CC</td><td>SW1 Fa0/3</td></tr>
+      <tr><td style="padding:.32rem .65rem;border-bottom:1px solid var(--border-light)">R1 (LAN1-zijde)</td><td>192.168.1.1</td><td>RR:RR:RR:RR</td><td>SW1 Fa0/4</td></tr>
+      <tr><td style="padding:.32rem .65rem;border-bottom:1px solid var(--border-light)">R1 (WAN-zijde)</td><td>10.0.0.1</td><td>—</td><td>Gi0/1 ↔ R2 Gi0/1</td></tr>
+      <tr><td style="padding:.32rem .65rem;border-bottom:1px solid var(--border-light)">R2 (WAN-zijde)</td><td>10.0.0.2</td><td>—</td><td>Gi0/1 ↔ R1 Gi0/1</td></tr>
+      <tr><td style="padding:.32rem .65rem;border-bottom:1px solid var(--border-light)">R2 (LAN2-zijde)</td><td>192.168.2.1</td><td>SS:SS:SS:SS</td><td>SW2 Fa0/1</td></tr>
+      <tr><td style="padding:.32rem .65rem;border-bottom:1px solid var(--border-light)">PC-D</td><td>192.168.2.10</td><td>DD:DD:DD:DD</td><td>SW2 Fa0/2</td></tr>
+      <tr><td style="padding:.32rem .65rem">PC-E</td><td>192.168.2.20</td><td>EE:EE:EE:EE</td><td>SW2 Fa0/3</td></tr>
+    </table>
+  </div>
+
+  <div id="flab-steps"></div>
+
+  <div class="sim-summary" id="flab-summary">
+    <h3>🏆 Lab voltooid — alle pakketten gevolgd!</h3>
+    <p>
+    • <strong>IP-adressen (L3)</strong> bleven van eind tot eind ongewijzigd bij elk pakket, ook over meerdere routers.<br>
+    • <strong>MAC-adressen (L2)</strong> veranderden bij elke routerovergang — elk segment heeft zijn eigen MAC-paar.<br>
+    • SW1 en SW2 leerden MAC-adressen passief via het bron-MAC van inkomende frames.<br>
+    • Onbekend doel-MAC → flooden; bekend doel-MAC → gericht forwarden.<br>
+    • De switches zien nooit adressen voorbij hun eigen router-interface.
+    </p>
+  </div>
+  <button class="reset-btn" onclick="resetFlab()">↺ Reset Netwerk Lab</button>
+</div>
+
+<script>
+const TOTAL=39; let correct=0,wrong=0;
+function upd(){
+  const a=correct+wrong;
+  document.getElementById('score-ok').textContent=correct;
+  document.getElementById('score-err').textContent=wrong;
+  document.getElementById('score-pend').textContent=TOTAL-a;
+  const p=Math.round(a/TOTAL*100);
+  document.getElementById('pbar').style.width=p+'%';
+  document.getElementById('pct').textContent=p+'%';
+}
+function switchTab(t){
+  ['trace','routing','sim','flood'].forEach(s=>document.getElementById('sec-'+s).classList.toggle('active',s===t));
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['trace','routing','sim','flood'][i]===t));
+}
+
+/* ── MCQ ── */
+const ANS={
+  t1:{c:'B',ok:'✓ Routers werken op Laag 3 en gebruiken IP-adressen.',no:'Switches = Laag 2. Routers = Laag 3 (IP).'},
+  t2:{c:'C',ok:'✓ PC-A stuurt het frame naar het MAC van zijn gateway (R1), maar het IP-doel is de server.',no:'Het MAC van de server is onbereikbaar buiten het subnet. Het frame gaat naar de gateway.'},
+  t3:{c:'B',ok:'✓ IP-adressen blijven ongewijzigd (Laag 3). Alleen de MAC-inkapseling verandert bij elke router.',no:'IP-adressen veranderen nooit bij een routerovergang. Alleen Laag-2-adressen veranderen.'},
+  t4:{c:'B',ok:'✓ TTL=0 → pakket weggegooid + ICMP Time Exceeded terug. Basis van traceroute!',no:'Bij TTL=0 wordt het pakket weggegooid. Er is geen reset of doorsturen mogelijk.'},
+  t5:{c:'B',ok:'✓ Zelfde subnet → switch levert direct af via MAC-adressen. Geen router nodig.',no:'Zelfde subnet = geen router. Switch handelt het af op Laag 2.'},
+  r1:{c:'B',ok:'✓ Langste Prefix Match: /24 is specifieker dan /8 voor 10.0.3.45.',no:'Langste Prefix Match: /24 wint van /8.'},
+  r2:{c:'B',ok:'✓ C = Connected: rechtstreeks verbonden interface.',no:'C = Connected. S = Statisch. O = OSPF.'},
+  r4:{c:'B',ok:'✓ Geen route + geen standaard → pakket weg + ICMP Destination Unreachable.',no:'Geen route + geen standaard = pakket weggegooid.'},
+  r5:{c:'B',ok:'✓ 0.0.0.0/0 matcht alles wat niet specifieker overeenkomt — gateway of last resort.',no:'Standaardroute = vangnet voor alle onbekende bestemmingen.'},
+};
+let mcqSt={};
+function pick(id,choice){
+  if(mcqSt[id]) return; mcqSt[id]=choice;
+  const opts=document.querySelectorAll('#opts-'+id+' .option');
+  const letters=['A','B','C','D'];
+  const ok=choice===ANS[id].c;
+  opts.forEach((o,i)=>{
+    o.classList.add('disabled');
+    if(letters[i]===ANS[id].c) o.classList.add('correct-ans');
+    if(letters[i]===choice&&!ok) o.classList.add('wrong-ans');
+  });
+  const fb=document.getElementById('fb-'+id), card=document.getElementById('card-'+id);
+  if(ok){fb.textContent=ANS[id].ok;fb.className='feedback show ok';card.classList.add('correct');correct++;}
+  else{fb.textContent='✗ '+ANS[id].no;fb.className='feedback show bad';card.classList.add('wrong');wrong++;}
+  upd();
+}
+const FILL={'r3-1':'direct','r3-2':'192.168.10.1','r3-3':'192.168.10.2','r3-4':'192.168.10.254'};
+let fillDone=false;
+function checkFill(){
+  if(fillDone) return; fillDone=true;
+  let ok=true;
+  Object.entries(FILL).forEach(([id,ans])=>{
+    const inp=document.getElementById(id); // inp.disabled=true;
+    if(inp.value.trim().toLowerCase()===ans) inp.classList.add('correct');
+    else{inp.classList.add('wrong');ok=false;}
+  });
+  const fb=document.getElementById('fb-r3'),card=document.getElementById('card-r3');
+  if(ok){fb.textContent='✓ Alle correct! direct · 192.168.10.1 · 192.168.10.2 · 192.168.10.254';fb.className='feedback show ok';card.classList.add('correct');correct++;}
+  else{fb.textContent='✗ Sommige fout. Gebruik Langste Prefix Match. Direct verbonden subnet → "direct".';fb.className='feedback show bad';card.classList.add('wrong');wrong++;}
+  upd();
+}
+function resetMCQ(ids){
+  ids.forEach(id=>{
+    if(!mcqSt[id]) return;
+    const wasOk=mcqSt[id]===ANS[id].c; delete mcqSt[id];
+    document.querySelectorAll('#opts-'+id+' .option').forEach(o=>o.classList.remove('disabled','correct-ans','wrong-ans'));
+    document.getElementById('fb-'+id).className='feedback';
+    document.getElementById('card-'+id).classList.remove('correct','wrong');
+    if(wasOk) correct--; else wrong--;
+  }); upd();
+}
+function resetFill(){
+  if(!fillDone) return; fillDone=false;
+  ['r3-1','r3-2','r3-3','r3-4'].forEach(id=>{const i=document.getElementById(id);i.value='';i.disabled=false;i.classList.remove('correct','wrong');});
+  const wasOk=document.getElementById('card-r3').classList.contains('correct');
+  document.getElementById('fb-r3').className='feedback';
+  document.getElementById('card-r3').classList.remove('correct','wrong');
+  if(wasOk) correct--; else wrong--; upd();
+}
+
+/* ── HOP SIMULATOR ── */
+const STEPS=[
+  {id:'s1',title:'Hop 1 — IP-laag: PC-A verstuurt pakket',badge:'l3',
+   desc:'PC-A wil Server-S (<strong>10.0.1.50</strong>) bereiken op een <strong>ander netwerk</strong>. Welke IP-adressen staan in het pakket?',
+   fields:[
+     {id:'h1-si',label:'🌐 Bron IP',opts:['192.168.1.10','10.0.1.50','192.168.1.1','10.0.0.1'],c:'192.168.1.10'},
+     {id:'h1-di',label:'🌐 Doel IP',opts:['10.0.1.50','192.168.1.1','192.168.1.10','10.0.0.2'],c:'10.0.1.50'},
+   ],
+   ok:'✓ Bron-IP = PC-A (192.168.1.10), Doel-IP = Server-S (10.0.1.50). Deze veranderen de hele reis nooit.',
+   no:'Bron-IP = afzender PC-A (192.168.1.10). Doel-IP = eindbestemming Server-S (10.0.1.50).',
+   hi:{n:['snd-pc'],l:[]},pkt:null},
+  {id:'s2',title:'Hop 1 — MAC-laag: frame naar gateway',badge:'l2',
+   desc:'De bestemming ligt buiten het subnet. PC-A stuurt naar gateway <strong>R1</strong>. Welke MAC-adressen in het frame?',
+   fields:[
+     {id:'h1-sm',label:'🔗 Bron MAC',opts:['AA:AA:AA:AA (PC-A)','BB:BB:BB:BB (R1)','CC:CC:CC:CC (R2)','DD:DD:DD:DD (Server-S)'],c:'AA:AA:AA:AA (PC-A)'},
+     {id:'h1-dm',label:'🔗 Doel MAC',opts:['BB:BB:BB:BB (R1 — gateway)','DD:DD:DD:DD (Server-S)','AA:AA:AA:AA (PC-A)','FF:FF:FF:FF (broadcast)'],c:'BB:BB:BB:BB (R1 — gateway)'},
+   ],
+   ok:'✓ Bron-MAC = PC-A (AA:AA), Doel-MAC = gateway R1 (BB:BB). IP-doel blijft 10.0.1.50.',
+   no:'Doel-MAC = eerstvolgende hop = R1 (BB:BB). Bron-MAC = PC-A (AA:AA).',
+   hi:{n:['snd-pc','snd-sw'],l:['slk1']},pkt:null},
+  {id:'s3',title:'SW1 leert — MAC-adrestabel invullen',badge:'mac',
+   desc:'SW1 ontvangt het frame van PC-A op poort <strong>Fa0/1</strong>. SW1 leert het bron-MAC. Vul de tabel in:',
+   rows:[{mi:'s3m1',pi:'s3p1',mo:['AA:AA:AA:AA','BB:BB:BB:BB','CC:CC:CC:CC','DD:DD:DD:DD'],po:['Fa0/1','Fa0/2'],cm:'AA:AA:AA:AA',cp:'Fa0/1'}],
+   ok:'✓ SW1 leert AA:AA:AA:AA → Fa0/1 (PC-A).',
+   no:'SW1 leert BRON-MAC van het inkomende frame: AA:AA:AA:AA op Fa0/1.',
+   svgUpd:[{rw:'smt-r1',mm:'smt-r1m',pm:'smt-r1p',mac:'AA:AA:AA:AA',port:'Fa0/1'}],
+   hi:{n:[],l:[]},pkt:null},
+  {id:'s4',title:'Hop 1 — SW1 stuurt door naar R1',badge:'l2',
+   desc:'SW1 moet het frame doorsturen naar R1 (Doel-MAC = BB:BB). SW1 kent BB:BB nog <strong>niet</strong>. Wat doet SW1?',
+   fields:[{id:'h1-sw',label:'📤 Actie SW1',opts:['Flooden naar Fa0/2, Fa0/3 (alle poorten behalve Fa0/1)','Forwarden naar Fa0/2 (R1)','Frame wegooien','Terugsturen naar Fa0/1'],c:'Flooden naar Fa0/2, Fa0/3 (alle poorten behalve Fa0/1)'}],
+   ok:'✓ BB:BB onbekend → SW1 floodt naar alle poorten behalve Fa0/1. R1 ontvangt het op Fa0/2 en verwerkt het.',
+   no:'Onbekend doel-MAC → FLOODEN naar alle poorten behalve inkomende poort.',
+   hi:{n:['snd-sw','snd-r1'],l:['slk2']},pkt:{cx:356,cy:92}},
+  {id:'s5',title:'Hop 2 — IP ongewijzigd op WAN-link',badge:'l3',
+   desc:'R1 stuurt het pakket door naar R2 via de WAN-link. Welke IP-adressen op de WAN-link?',
+   fields:[
+     {id:'h2-si',label:'🌐 Bron IP',opts:['192.168.1.10','10.0.0.1','192.168.1.1','10.0.1.50'],c:'192.168.1.10'},
+     {id:'h2-di',label:'🌐 Doel IP',opts:['10.0.1.50','10.0.0.2','192.168.1.1','10.0.0.1'],c:'10.0.1.50'},
+   ],
+   ok:'✓ IP-adressen veranderen NOOIT: 192.168.1.10 → 10.0.1.50.',
+   no:'IP-adressen veranderen nooit bij een routerovergang. Bron = 192.168.1.10, Doel = 10.0.1.50.',
+   hi:{n:['snd-r1'],l:[]},pkt:null},
+  {id:'s6',title:'Hop 2 — Nieuw frame R1 → R2',badge:'l2',
+   desc:'R1 bouwt een nieuw frame voor de WAN-link. Welke MAC-adressen?',
+   fields:[
+     {id:'h2-sm',label:'🔗 Bron MAC',opts:['BB:BB:BB:BB (R1)','AA:AA:AA:AA (PC-A)','CC:CC:CC:CC (R2)','DD:DD:DD:DD (Server-S)'],c:'BB:BB:BB:BB (R1)'},
+     {id:'h2-dm',label:'🔗 Doel MAC',opts:['CC:CC:CC:CC (R2)','DD:DD:DD:DD (Server-S)','AA:AA:AA:AA (PC-A)','BB:BB:BB:BB (R1)'],c:'CC:CC:CC:CC (R2)'},
+   ],
+   ok:'✓ R1 = afzender (BB:BB), R2 = volgende hop (CC:CC). Oud frame van PC-A bestaat niet meer.',
+   no:'WAN-link: bron = R1 (BB:BB), doel = R2 (CC:CC).',
+   hi:{n:['snd-r1','snd-r2'],l:['slk3']},pkt:{cx:486,cy:92}},
+  {id:'s7',title:'Hop 3 — IP nog steeds ongewijzigd',badge:'l3',
+   desc:'R2 ontvangt het pakket. 10.0.1.50 is rechtstreeks verbonden. Welke IP-adressen?',
+   fields:[
+     {id:'h3-si',label:'🌐 Bron IP',opts:['192.168.1.10','10.0.0.2','10.0.1.1','10.0.1.50'],c:'192.168.1.10'},
+     {id:'h3-di',label:'🌐 Doel IP',opts:['10.0.1.50','10.0.0.1','192.168.1.10','10.0.1.1'],c:'10.0.1.50'},
+   ],
+   ok:'✓ Na drie hops: nog steeds 192.168.1.10 → 10.0.1.50. IP verandert nooit.',
+   no:'IP-adressen veranderen nooit. Bron = 192.168.1.10, Doel = 10.0.1.50.',
+   hi:{n:['snd-r2'],l:[]},pkt:null},
+  {id:'s8',title:'Hop 3 — Laatste frame naar Server-S',badge:'l2',
+   desc:'R2 stuurt het definitieve frame naar Server-S. Welke MAC-adressen?',
+   fields:[
+     {id:'h3-sm',label:'🔗 Bron MAC',opts:['CC:CC:CC:CC (R2)','BB:BB:BB:BB (R1)','AA:AA:AA:AA (PC-A)','DD:DD:DD:DD (Server-S)'],c:'CC:CC:CC:CC (R2)'},
+     {id:'h3-dm',label:'🔗 Doel MAC',opts:['DD:DD:DD:DD (Server-S)','CC:CC:CC:CC (R2)','AA:AA:AA:AA (PC-A)','BB:BB:BB:BB (R1)'],c:'DD:DD:DD:DD (Server-S)'},
+   ],
+   ok:'✓ R2 (CC:CC) → Server-S (DD:DD). Pakket gearriveerd! 🎉',
+   no:'Laatste segment: bron = R2 (CC:CC), doel = Server-S (DD:DD).',
+   hi:{n:['snd-r2','snd-sv'],l:['slk4']},pkt:{cx:627,cy:92}},
+  {id:'s9',title:'SW1 — Volledige MAC-tabel na de uitwisseling',badge:'mac',
+   desc:'SW1 heeft nu twee MAC-adressen geleerd (R1 stuurde ook ARP-antwoorden). Vul de volledige eindtabel in:',
+   rows:[
+     {mi:'s9m1',pi:'s9p1',mo:['AA:AA:AA:AA','BB:BB:BB:BB','CC:CC:CC:CC','DD:DD:DD:DD'],po:['Fa0/1','Fa0/2'],cm:'AA:AA:AA:AA',cp:'Fa0/1'},
+     {mi:'s9m2',pi:'s9p2',mo:['AA:AA:AA:AA','BB:BB:BB:BB','CC:CC:CC:CC','DD:DD:DD:DD'],po:['Fa0/1','Fa0/2'],cm:'BB:BB:BB:BB',cp:'Fa0/2'},
+   ],
+   ok:'✓ AA:AA→Fa0/1 (PC-A) en BB:BB→Fa0/2 (R1). SW1 ziet nooit adressen voorbij R1.',
+   no:'SW1 leert AA:AA op Fa0/1 en BB:BB op Fa0/2. Adressen voorbij R1 zijn onzichtbaar.',
+   svgUpd:[
+     {rw:'smt-r1',mm:'smt-r1m',pm:'smt-r1p',mac:'AA:AA:AA:AA',port:'Fa0/1'},
+     {rw:'smt-r2',mm:'smt-r2m',pm:'smt-r2p',mac:'BB:BB:BB:BB',port:'Fa0/2'},
+   ],
+   hi:{n:[],l:[]},pkt:null},
+];
+
+let simSc={}, simEl=null;
+function buildSim(){
+  const c=document.getElementById('sim-steps'); c.innerHTML='';
+  simEl=null;
+  renderSimStep(0);
+}
+function renderSimStep(idx){
+  if(idx>=STEPS.length){setTimeout(()=>document.getElementById('sim-summary').classList.add('show'),400);return;}
+  const s=STEPS[idx];
+  if(simEl) simEl.style.opacity='.55';
+  const div=document.createElement('div');
+  div.id='sc-'+s.id; div.className='step-card';
+  const bdg=s.badge==='l3'?'<span class="bl3">Laag 3</span>':s.badge==='l2'?'<span class="bl2">Laag 2</span>':'<span class="bmac">MAC-tabel</span>';
+  let html=`<div class="step-hdr"><span class="step-num">${s.id.toUpperCase()}</span><span class="step-tit">${s.title}</span>${bdg}</div><div class="step-body"><div class="step-desc">${s.desc}</div><div class="step-fields">`;
+  if(s.fields){
+    s.fields.forEach(f=>{
+      html+=`<div class="step-field"><label>${f.label}</label><select class="ssel" id="${f.id}"><option value="">— kies —</option>${f.opts.map(o=>`<option>${o}</option>`).join('')}</select></div>`;
+    });
+  } else if(s.rows){
+    s.rows.forEach((r,i)=>{
+      html+=`<div class="mac-rg"><span class="mac-rl">Rij ${i+1}:</span>
+        <label style="font-size:.75rem;font-weight:600;color:var(--text2)">MAC:</label>
+        <select class="ssel" id="${r.mi}" style="min-width:150px"><option value="">— kies —</option>${r.mo.map(o=>`<option>${o}</option>`).join('')}</select>
+        <label style="font-size:.75rem;font-weight:600;color:var(--text2)">Poort:</label>
+        <select class="ssel" id="${r.pi}" style="min-width:85px"><option value="">— kies —</option>${r.po.map(o=>`<option>${o}</option>`).join('')}</select>
+      </div>`;
+    });
+  }
+  html+=`</div><button class="step-chk" onclick="checkSim('${s.id}',${idx})">✓ Controleren</button><div class="step-fb" id="sfb-${s.id}"></div></div>`;
+  div.innerHTML=html;
+  document.getElementById('sim-steps').appendChild(div);
+  div.scrollIntoView({behavior:'smooth',block:'nearest'});
+  simEl=div;
+}
+function checkSim(sid,idx){
+  if(simSc[sid]!==undefined) return;
+  const s=STEPS[idx]; const card=document.getElementById('sc-'+sid); const fb=document.getElementById('sfb-'+sid);
+  let ok=true;
+  if(s.fields){
+    s.fields.forEach(f=>{
+      const sel=document.getElementById(f.id); if(!sel) return;
+      /*sel.disabled=true;*/ const fok=sel.value===f.c; sel.classList.add(fok?'s-ok':'s-err'); if(!fok) ok=false;
+    });
+  } else if(s.rows){
+    s.rows.forEach(r=>{
+      const ms=document.getElementById(r.mi),ps=document.getElementById(r.pi);
+      if(ms){/*ms.disabled=true;*/const mok=ms.value===r.cm;ms.classList.add(mok?'s-ok':'s-err');if(!mok)ok=false;}
+      if(ps){/*ps.disabled=true;*/const pok=ps.value===r.cp;ps.classList.add(pok?'s-ok':'s-err');if(!pok)ok=false;}
+    });
+    if(ok&&s.svgUpd){
+      document.getElementById('smt-empty').setAttribute('opacity','0');
+      s.svgUpd.forEach(u=>{
+        document.getElementById(u.rw)?.setAttribute('opacity','1');
+        const me=document.getElementById(u.mm),pe=document.getElementById(u.pm);
+        if(me)me.textContent=u.mac; if(pe)pe.textContent=u.port;
+      });
+    }
+  }
+
+  if(ok){
+    simSc[sid]=true;
+    fb.innerHTML=s.ok;fb.className='step-fb show ok';card.classList.add('s-ok');correct++;
+    s.hi.n.forEach(n=>document.getElementById(n)?.classList.add('nd-hi'));
+    s.hi.l.forEach(l=>document.getElementById(l)?.classList.add('lk-hi'));
+    if(s.pkt){const d=document.getElementById('spkt');d.setAttribute('opacity','1');d.setAttribute('cx',s.pkt.cx);d.setAttribute('cy',s.pkt.cy);}
+    upd(); setTimeout(()=>renderSimStep(idx+1),550);
+  } else {
+    fb.innerHTML='✗ '+s.no + '<br><span style="font-size:.75rem;color:var(--muted)">↑ Pas je antwoord aan en probeer opnieuw.</span>';
+    fb.className='step-fb show bad';
+    card.classList.add('s-err');
+    wrong++; upd();
+
+    // allow retry: clear the "error/correct" styling so it can be re-checked cleanly
+    if(s.fields){
+      s.fields.forEach(f=>{
+        const sel=document.getElementById(f.id); if(!sel) return;
+        sel.classList.remove('s-ok','s-err');
+      });
+    } else if(s.rows){
+      s.rows.forEach(r=>{
+        const ms=document.getElementById(r.mi),ps=document.getElementById(r.pi);
+        ms?.classList.remove('s-ok','s-err');
+        ps?.classList.remove('s-ok','s-err');
+      });
+    }
+    card.classList.remove('s-err');
+  }
+}
+function resetSim(){
+  Object.entries(simSc).forEach(([,ok])=>{if(ok)correct--;else wrong--;});
+  simSc={};
+  document.querySelectorAll('#simsvg .nd').forEach(e=>e.classList.remove('nd-hi'));
+  document.querySelectorAll('#simsvg .lk').forEach(e=>e.classList.remove('lk-hi'));
+  const d=document.getElementById('spkt');d.setAttribute('opacity','0');d.setAttribute('cx','58');d.setAttribute('cy','92');
+  document.getElementById('smt-empty').setAttribute('opacity','1');
+  ['smt-r1','smt-r2'].forEach(id=>document.getElementById(id)?.setAttribute('opacity','0'));
+  document.getElementById('sim-summary').classList.remove('show');
+  buildSim(); upd();
+}
+buildSim();
+
+/* ══════════════════════════════════════════════════════
+   GECOMBINEERD L2 + L3 NETWERK LAB
+   Netwerk:
+     LAN1 192.168.1.0/24: PC-A(AA:AA·Fa0/1), PC-B(BB:BB·Fa0/2), PC-C(CC:CC·Fa0/3)
+                           R1 LAN1-zijde 192.168.1.1 MAC=RR:RR op SW1·Fa0/4
+     WAN  10.0.0.0/30:    R1 Gi0/1=10.0.0.1 ↔ R2 Gi0/1=10.0.0.2
+     LAN2 192.168.2.0/24: R2 LAN2-zijde 192.168.2.1 MAC=SS:SS op SW2·Fa0/1
+                           PC-D(DD:DD·Fa0/2), PC-E(EE:EE·Fa0/3)
+   Alle MAC-tabellen starten leeg.
+   4 pakketten, elk met 4-6 deelstappen (L3 IP, L2 MAC per segment, MAC-tabel).
+══════════════════════════════════════════════════════ */
+
+// Centrale state voor beide switches
+let sw1Mac={}, sw2Mac={};   // {MAC: {port,dev}}
+
+// ─── Pakketdefinities ───────────────────────────────
+// type: 'sel' = keuze | 'mac' = MAC-tabel invullen (select)
+const FPKTS = [
+
+  /* ════════════════════════════════════════════════
+     PAKKET 1: PC-A → PC-B  (lokaal, LAN1)
+     Beide tabellen leeg. Eerste frames ooit.
+  ════════════════════════════════════════════════ */
+  { id:'p1', tag:'local', tagLabel:'Lokaal LAN1',
+    title:'Pakket 1 — PC-A → PC-B (zelfde subnet, lege tabel)',
+    intro:'PC-A (192.168.1.10) wil communiceren met PC-B (192.168.1.20). Beide zitten op LAN1. De MAC-tabel van SW1 is nog volledig leeg.',
+    steps:[
+
+      { id:'p1s1', badge:'l3', title:'Stap 1 · Laag 3 — welke IP-adressen gebruikt PC-A?',
+        desc:'PC-A (192.168.1.10) wil communiceren met PC-B (192.168.1.20). Welke IP-adressen staan in het pakket?',
+        type:'sel',
+        fields:[
+          {id:'p1s1a', label:'🌐 Bron-IP', opts:['192.168.1.10 (PC-A)','192.168.1.1 (R1)','192.168.1.20 (PC-B)','10.0.0.1 (WAN)'], c:'192.168.1.10 (PC-A)'},
+          {id:'p1s1b', label:'🌐 Doel-IP',  opts:['192.168.1.20 (PC-B)','192.168.1.1 (R1)','192.168.2.10 (PC-D)','10.0.0.2 (WAN)'], c:'192.168.1.20 (PC-B)'},
+        ],
+        ok:'✓ Bron-IP = 192.168.1.10 (PC-A), Doel-IP = 192.168.1.20 (PC-B). Zelfde subnet → geen router nodig.',
+        no:'Bron-IP = PC-A zelf (192.168.1.10). Doel-IP = de eindbestemming PC-B (192.168.1.20). Zelfde subnet, geen router.'},
+
+      { id:'p1s2', badge:'l2', title:'Stap 2 · Laag 2 — welke MAC-adressen zet PC-A in het frame?',
+        desc:'PC-A stuurt een ethernet frame. Kijk naar de subnetadressen en beslis welke MAC-adressen in het frame staan.',
+        type:'sel',
+        fields:[
+          {id:'p1s2a', label:'🔗 Bron-MAC', opts:['AA:AA:AA:AA (PC-A)','BB:BB:BB:BB (PC-B)','RR:RR:RR:RR (R1)','CC:CC:CC:CC (PC-C)'], c:'AA:AA:AA:AA (PC-A)'},
+          {id:'p1s2b', label:'🔗 Doel-MAC', opts:['BB:BB:BB:BB (PC-B)','RR:RR:RR:RR (R1 — gateway)','AA:AA:AA:AA (PC-A)','FF:FF:FF:FF (broadcast)'], c:'BB:BB:BB:BB (PC-B)'},
+        ],
+        ok:'✓ Doel-MAC = BB:BB (PC-B) rechtstreeks, want beide zitten in hetzelfde LAN. Geen gateway nodig in het frame!',
+        no:'Zelfde subnet = frame rechtstreeks naar de bestemmings-MAC. Bron = AA:AA (PC-A), Doel = BB:BB (PC-B). Geen gateway-MAC nodig.'},
+
+      { id:'p1s3', badge:'mac', title:'Stap 3 · Vul de MAC-tabel in',
+        desc:'SW1 ontvangt het frame van PC-A op poort Fa0/1. Welke entry voegt SW1 toe aan zijn MAC-tabel?',
+        type:'mac', sw:'sw1',
+        rows:[
+          {mi:'p1s3m', pi:'p1s3p', mo:['AA:AA:AA:AA','BB:BB:BB:BB','CC:CC:CC:CC','RR:RR:RR:RR'], po:['Fa0/1','Fa0/2','Fa0/3','Fa0/4'], cm:'AA:AA:AA:AA', cp:'Fa0/1', dev:'PC-A'},
+        ],
+        ok:'✓ SW1 leert AA:AA:AA:AA → Fa0/1 (PC-A). BB:BB is onbekend → SW1 floodt het frame naar Fa0/2, Fa0/3 en Fa0/4.',
+        no:'SW1 leert het BRON-MAC van het inkomende frame op de inkomende poort: AA:AA op Fa0/1.',
+        macUpd:'sw1'},
+
+      { id:'p1s4', badge:'l2', title:'Stap 4 · PC-B antwoordt',
+        desc:'PC-B stuurt een antwoord terug naar PC-A. SW1 ontvangt dit frame. Wat leert SW1 en hoe stuurt het door?',
+        type:'sel',
+        fields:[
+          {id:'p1s4a', label:'📥 Leert SW1', opts:['BB:BB:BB:BB op Fa0/2','AA:AA:AA:AA op Fa0/2','Niets — al gevuld','BB:BB:BB:BB op Fa0/1'], c:'BB:BB:BB:BB op Fa0/2'},
+          {id:'p1s4b', label:'📤 Stuurt naar', opts:['Forwarden naar Fa0/1 (AA:AA bekend)','Flooden — AA:AA onbekend','Forwarden naar Fa0/2','Frame wegooien'], c:'Forwarden naar Fa0/1 (AA:AA bekend)'},
+        ],
+        ok:'✓ SW1 leert BB:BB→Fa0/2. AA:AA staat al in de tabel (Fa0/1) → gericht forwarden. Geen flooding meer!',
+        no:'SW1 leert bron-MAC BB:BB op Fa0/2. AA:AA is al geleerd (Fa0/1) → forwarden, niet flooden.',
+        extraMacUpd:{sw:'sw1', mac:'BB:BB:BB:BB', port:'Fa0/2', dev:'PC-B'}},
+    ]
+  },
+
+  /* ════════════════════════════════════════════════
+     PAKKET 2: PC-A → PC-D  (remote: LAN1 → LAN2)
+     Meerdere hops: SW1 → R1 → R2 → SW2 → PC-D
+     SW1 kent AA:AA al. RR:RR nog onbekend op SW1.
+     SW2 is nog volledig leeg.
+  ════════════════════════════════════════════════ */
+  { id:'p2', tag:'routed', tagLabel:'Gerouteerd',
+    title:'Pakket 2 — PC-A → PC-D (LAN1 naar LAN2, meerdere hops)',
+    intro:'PC-A (192.168.1.10) wil PC-D (192.168.2.10) bereiken. PC-D zit op een ander subnet (LAN2).',
+    steps:[
+
+      { id:'p2s1', badge:'l3', title:'Stap 1 · L3 — welke IP-adressen zijn van begin tot eind geldig?',
+        desc:'PC-A wil PC-D bereiken. Welke IP-adressen staan in het pakket — op elk segment van de reis?',
+        type:'sel',
+        fields:[
+          {id:'p2s1a', label:'🌐 Bron-IP (ongewijzigd)', opts:['192.168.1.10 (PC-A)','192.168.1.1 (R1)','10.0.0.1 (WAN R1)','192.168.2.1 (R2)'], c:'192.168.1.10 (PC-A)'},
+          {id:'p2s1b', label:'🌐 Doel-IP (ongewijzigd)', opts:['192.168.2.10 (PC-D)','192.168.2.1 (R2)','10.0.0.2 (WAN R2)','192.168.1.1 (R1)'], c:'192.168.2.10 (PC-D)'},
+        ],
+        ok:'✓ IP-adressen veranderen NOOIT: bron = 192.168.1.10 (PC-A), doel = 192.168.2.10 (PC-D) — van begin tot eind.',
+        no:'IP-adressen (L3) veranderen nooit. Bron = PC-A (192.168.1.10), Doel = PC-D (192.168.2.10).'},
+
+      { id:'p2s2', badge:'l2', title:'Stap 2 · L2 — frame van PC-A op LAN1',
+        desc:'PC-A stuurt een frame op LAN1. Welke MAC-adressen staan in dit frame?',
+        type:'sel',
+        fields:[
+          {id:'p2s2a', label:'🔗 Bron-MAC (LAN1)', opts:['AA:AA:AA:AA (PC-A)','RR:RR:RR:RR (R1)','BB:BB:BB:BB (PC-B)','DD:DD:DD:DD (PC-D)'], c:'AA:AA:AA:AA (PC-A)'},
+          {id:'p2s2b', label:'🔗 Doel-MAC (LAN1)', opts:['RR:RR:RR:RR (R1 — gateway)','DD:DD:DD:DD (PC-D)','SS:SS:SS:SS (R2)','BB:BB:BB:BB (PC-B)'], c:'RR:RR:RR:RR (R1 — gateway)'},
+        ],
+        ok:'✓ Frame op LAN1: bron = AA:AA (PC-A), doel = RR:RR (R1 = gateway). IP-doel is al 192.168.2.10 maar frame gaat naar R1.',
+        no:'Ander subnet → doel-MAC = MAC van de gateway = R1 = RR:RR. Bron-MAC = PC-A = AA:AA.'},
+
+      { id:'p2s3', badge:'mac', title:'Stap 3 · SW1 MAC-tabel — wat leert SW1 en wat doet het?',
+        desc:'SW1 ontvangt het frame op Fa0/1. Wat leert SW1 en hoe stuurt het het frame door?',
+        type:'sel',
+        fields:[
+          {id:'p2s3a', label:'📥 Leert SW1', opts:['Niets nieuws — AA:AA al bekend','RR:RR op Fa0/4','AA:AA op Fa0/4','BB:BB op Fa0/2'], c:'Niets nieuws — AA:AA al bekend'},
+          {id:'p2s3b', label:'📤 SW1 stuurt het frame', opts:['Flooden naar Fa0/2, Fa0/3, Fa0/4','Forwarden naar Fa0/4','Frame wegooien','Terugsturen naar Fa0/1'], c:'Flooden naar Fa0/2, Fa0/3, Fa0/4'},
+        ],
+        ok:'✓ AA:AA is al gekend → niets nieuws geleerd. RR:RR is onbekend → SW1 floodt naar Fa0/2, Fa0/3, Fa0/4. R1 ontvangt het op Fa0/4 en verwerkt het.',
+        no:'AA:AA is al geleerd (geen nieuwe entry). RR:RR is onbekend → flooden naar alle poorten behalve inkomend (Fa0/1).'},
+
+      { id:'p2s4', badge:'l2', title:'Stap 4 · L2 — nieuw frame vertrekkend van R1 (WAN-segment)',
+        desc:'R1 ontvangt het frame en stuurt een nieuw frame de WAN-link op. Welke MAC-adressen staan in dit nieuwe frame?',
+        type:'sel',
+        fields:[
+          {id:'p2s4a', label:'🔗 Bron-MAC (WAN)', opts:['RR:RR:RR:RR (R1 WAN-zijde)','AA:AA:AA:AA (PC-A)','SS:SS:SS:SS (R2)','DD:DD:DD:DD (PC-D)'], c:'RR:RR:RR:RR (R1 WAN-zijde)'},
+          {id:'p2s4b', label:'🔗 Doel-MAC (WAN)', opts:['SS:SS:SS:SS (R2 WAN-zijde)','DD:DD:DD:DD (PC-D)','AA:AA:AA:AA (PC-A)','RR:RR:RR:RR (R1)'], c:'SS:SS:SS:SS (R2 WAN-zijde)'},
+        ],
+        ok:'✓ R1 bouwt een nieuw frame: bron = RR:RR (R1), doel = SS:SS (R2). IP-adressen ongewijzigd: nog steeds 192.168.1.10 → 192.168.2.10.',
+        no:'Elke router bouwt een nieuw frame. Op de WAN-link: bron = R1 (RR:RR), doel = R2 (SS:SS). PC-A\'s MAC is hier volledig verdwenen.'},
+
+      { id:'p2s5', badge:'l2', title:'Stap 5 · L2 — R2 levert af aan PC-D (segment LAN2)',
+        desc:'R2 ontvangt het pakket en stuurt het door op LAN2. Welke MAC-adressen staan in dit frame?',
+        type:'sel',
+        fields:[
+          {id:'p2s5a', label:'🔗 Bron-MAC (LAN2)', opts:['SS:SS:SS:SS (R2)','RR:RR:RR:RR (R1)','AA:AA:AA:AA (PC-A)','DD:DD:DD:DD (PC-D)'], c:'SS:SS:SS:SS (R2)'},
+          {id:'p2s5b', label:'🔗 Doel-MAC (LAN2)', opts:['DD:DD:DD:DD (PC-D)','EE:EE:EE:EE (PC-E)','SS:SS:SS:SS (R2)','AA:AA:AA:AA (PC-A)'], c:'DD:DD:DD:DD (PC-D)'},
+        ],
+        ok:'✓ R2 stuurt naar PC-D: bron = SS:SS (R2), doel = DD:DD (PC-D). IP nog steeds 192.168.1.10 → 192.168.2.10.',
+        no:'Laatste segment (LAN2): bron-MAC = R2 (SS:SS), doel-MAC = PC-D (DD:DD).'},
+
+      { id:'p2s6', badge:'mac', title:'Stap 6 · SW2 leert — wat staat er nu in de tabel van SW2?',
+        desc:'SW2 ontvangt het frame van R2 op poort Fa0/1. Wat leert SW2 en hoe stuurt het het frame door?',
+        type:'sel',
+        fields:[
+          {id:'p2s6a', label:'📥 Leert SW2', opts:['SS:SS:SS:SS op Fa0/1','DD:DD:DD:DD op Fa0/1','AA:AA:AA:AA op Fa0/1','Niets — tabel leeg'], c:'SS:SS:SS:SS op Fa0/1'},
+          {id:'p2s6b', label:'📤 SW2 stuurt naar PC-D', opts:['Flooden naar Fa0/2 en Fa0/3','Forwarden naar Fa0/2','Frame wegooien','Terugsturen naar Fa0/1'], c:'Flooden naar Fa0/2 en Fa0/3'},
+        ],
+        ok:'✓ SW2 leert SS:SS→Fa0/1 (R2). DD:DD is onbekend → SW2 floodt naar Fa0/2 en Fa0/3. Alleen PC-D verwerkt het.',
+        no:'SW2 leert het BRON-MAC = SS:SS (R2) op Fa0/1. DD:DD is onbekend → flooden naar Fa0/2 en Fa0/3.',
+        extraMacUpd:{sw:'sw2', mac:'SS:SS:SS:SS', port:'Fa0/1', dev:'R2 (gateway)'}},
+    ]
+  },
+
+  /* ════════════════════════════════════════════════
+     PAKKET 3: PC-D → PC-A  (remote: LAN2 → LAN1)
+     Terugrichting. SW2 leert DD:DD. SW1 leert RR:RR.
+  ════════════════════════════════════════════════ */
+  { id:'p3', tag:'routed', tagLabel:'Gerouteerd',
+    title:'Pakket 3 — PC-D → PC-A (LAN2 terug naar LAN1)',
+    intro:'PC-D (192.168.2.10) antwoordt naar PC-A (192.168.1.10)',
+    steps:[
+
+      { id:'p3s1', badge:'l2', title:'Stap 1 · L2 — frame van PC-D naar R2 (LAN2)',
+        desc:'PC-D (192.168.2.10) wil PC-A (192.168.1.10) bereiken. Welke MAC-adressen staan in het frame dat PC-D verstuurt?',
+        type:'sel',
+        fields:[
+          {id:'p3s1a', label:'🔗 Bron-MAC', opts:['DD:DD:DD:DD (PC-D)','SS:SS:SS:SS (R2)','EE:EE:EE:EE (PC-E)','AA:AA:AA:AA (PC-A)'], c:'DD:DD:DD:DD (PC-D)'},
+          {id:'p3s1b', label:'🔗 Doel-MAC', opts:['SS:SS:SS:SS (R2 — gateway)','AA:AA:AA:AA (PC-A)','RR:RR:RR:RR (R1)','EE:EE:EE:EE (PC-E)'], c:'SS:SS:SS:SS (R2 — gateway)'},
+        ],
+        ok:'✓ Ander subnet → frame naar gateway R2 (SS:SS). Bron-MAC = DD:DD (PC-D).',
+        no:'PC-D stuurt naar zijn gateway R2 (SS:SS). Bron = DD:DD, doel = SS:SS.'},
+
+      { id:'p3s2', badge:'mac', title:'Stap 2 · SW2 leert DD:DD — vul in',
+        desc:'SW2 ontvangt het frame van PC-D op Fa0/2. Welke entry leert SW2?',
+        type:'mac', sw:'sw2',
+        rows:[
+          {mi:'p3s2m', pi:'p3s2p', mo:['DD:DD:DD:DD','EE:EE:EE:EE','SS:SS:SS:SS','AA:AA:AA:AA'], po:['Fa0/1','Fa0/2','Fa0/3'], cm:'DD:DD:DD:DD', cp:'Fa0/2', dev:'PC-D'},
+        ],
+        ok:'✓ SW2 leert DD:DD→Fa0/2 (PC-D). SS:SS al bekend (Fa0/1) → SW2 forwardet gericht naar Fa0/1.',
+        no:'SW2 leert bron-MAC DD:DD op inkomende poort Fa0/2.',
+        macUpd:'sw2'},
+
+      { id:'p3s3', badge:'l2', title:'Stap 3 · L2 — nieuw frame R2→R1 (WAN) en R1→SW1 (LAN1)',
+        desc:'Na de WAN-link bereikt het pakket LAN1. Welke MAC-adressen staan in het frame op dit laatste segment?',
+        type:'sel',
+        fields:[
+          {id:'p3s3a', label:'🔗 Bron-MAC (LAN1, R1→PC-A)', opts:['RR:RR:RR:RR (R1)','SS:SS:SS:SS (R2)','DD:DD:DD:DD (PC-D)','AA:AA:AA:AA (PC-A)'], c:'RR:RR:RR:RR (R1)'},
+          {id:'p3s3b', label:'🔗 Doel-MAC (LAN1, R1→PC-A)', opts:['AA:AA:AA:AA (PC-A)','BB:BB:BB:BB (PC-B)','CC:CC:CC:CC (PC-C)','SS:SS:SS:SS (R2)'], c:'AA:AA:AA:AA (PC-A)'},
+        ],
+        ok:'✓ R1 stuurt het laatste frame: bron = RR:RR (R1), doel = AA:AA (PC-A). IP nog steeds 192.168.2.10 → 192.168.1.10.',
+        no:'Op LAN1 stuurt R1 naar PC-A: bron = RR:RR (R1), doel = AA:AA (PC-A).'},
+
+      { id:'p3s4', badge:'mac', title:'Stap 4 · SW1 leert RR:RR — vul in',
+        desc:'SW1 ontvangt een frame op poort Fa0/4. Welke entry leert SW1?',
+        type:'mac', sw:'sw1',
+        rows:[
+          {mi:'p3s4m', pi:'p3s4p', mo:['RR:RR:RR:RR','AA:AA:AA:AA','BB:BB:BB:BB','SS:SS:SS:SS'], po:['Fa0/1','Fa0/2','Fa0/3','Fa0/4'], cm:'RR:RR:RR:RR', cp:'Fa0/4', dev:'R1 (gateway)'},
+        ],
+        ok:'✓ SW1 leert RR:RR→Fa0/4 (R1). AA:AA al bekend (Fa0/1) → forwarden naar PC-A. Voortaan kan SW1 ook gericht forwarden naar R1!',
+        no:'SW1 leert bron-MAC RR:RR op inkomende poort Fa0/4.',
+        macUpd:'sw1'},
+    ]
+  },
+
+  /* ════════════════════════════════════════════════
+     PAKKET 4: PC-C → PC-E  (remote: LAN1 → LAN2)
+     SW1 kent al AA:AA, BB:BB, RR:RR.
+     CC:CC is nog onbekend voor SW1.
+     SW2 kent SS:SS en DD:DD; EE:EE nog niet.
+  ════════════════════════════════════════════════ */
+  { id:'p4', tag:'routed', tagLabel:'Gerouteerd',
+    title:'Pakket 4 — PC-C → PC-E (LAN1 naar LAN2, tabellen al deels gevuld)',
+    intro:'PC-C (192.168.1.30) wil PC-E (192.168.2.20) bereiken.',
+    steps:[
+
+      { id:'p4s1', badge:'l3', title:'Stap 1 · L3 — IP-adressen, van eind tot eind',
+        desc:'PC-C stuurt naar PC-E. Welke IP-adressen staan in het pakket gedurende de hele reis?',
+        type:'sel',
+        fields:[
+          {id:'p4s1a', label:'🌐 Bron-IP', opts:['192.168.1.30 (PC-C)','192.168.1.1 (R1)','192.168.2.1 (R2)','10.0.0.1'], c:'192.168.1.30 (PC-C)'},
+          {id:'p4s1b', label:'🌐 Doel-IP', opts:['192.168.2.20 (PC-E)','192.168.2.10 (PC-D)','192.168.2.1 (R2)','10.0.0.2'], c:'192.168.2.20 (PC-E)'},
+        ],
+        ok:'✓ Bron = 192.168.1.30 (PC-C), Doel = 192.168.2.20 (PC-E). Ongewijzigd over alle hops.',
+        no:'IP-adressen veranderen nooit. Bron = PC-C (192.168.1.30), Doel = PC-E (192.168.2.20).'},
+
+      { id:'p4s2', badge:'l2', title:'Stap 2 · L2 — frame PC-C → R1 op LAN1',
+        desc:'PC-C stuurt een frame. Welke MAC-adressen gebruikt het?',
+        type:'sel',
+        fields:[
+          {id:'p4s2a', label:'🔗 Bron-MAC', opts:['CC:CC:CC:CC (PC-C)','AA:AA:AA:AA (PC-A)','RR:RR:RR:RR (R1)','EE:EE:EE:EE (PC-E)'], c:'CC:CC:CC:CC (PC-C)'},
+          {id:'p4s2b', label:'🔗 Doel-MAC', opts:['RR:RR:RR:RR (R1 — gateway)','EE:EE:EE:EE (PC-E)','SS:SS:SS:SS (R2)','DD:DD:DD:DD (PC-D)'], c:'RR:RR:RR:RR (R1 — gateway)'},
+        ],
+        ok:'✓ Ander subnet → doel-MAC = gateway R1 (RR:RR). Bron-MAC = CC:CC (PC-C).',
+        no:'Ander subnet → doel-MAC = R1 (RR:RR). Bron-MAC = PC-C (CC:CC).'},
+
+      { id:'p4s3', badge:'mac', title:'Stap 3 · SW1 — leert CC:CC, forwardet naar R1',
+        desc:'SW1 ontvangt het frame van PC-C op Fa0/3. Wat leert SW1 en hoe stuurt het door?',
+        type:'sel',
+        fields:[
+          {id:'p4s3a', label:'📥 Leert SW1', opts:['CC:CC:CC:CC op Fa0/3','CC:CC:CC:CC op Fa0/4','RR:RR:RR:RR op Fa0/3','Niets nieuw'], c:'CC:CC:CC:CC op Fa0/3'},
+          {id:'p4s3b', label:'📤 Stuurt naar R1 via', opts:['Forwarden naar Fa0/4','Flooden naar Fa0/1, Fa0/2, Fa0/4','Frame wegooien','Forwarden naar Fa0/3'], c:'Forwarden naar Fa0/4'},
+        ],
+        ok:'✓ SW1 leert CC:CC→Fa0/3. RR:RR al bekend (Fa0/4) → gericht forwarden naar R1. Geen flooding!',
+        no:'SW1 leert CC:CC op Fa0/3. RR:RR is al geleerd (Fa0/4) → forwarden, geen flood.',
+        extraMacUpd:{sw:'sw1', mac:'CC:CC:CC:CC', port:'Fa0/3', dev:'PC-C'}},
+
+      { id:'p4s4', badge:'l2', title:'Stap 4 · L2 — R2 levert af aan PC-E (LAN2)',
+        desc:'R2 ontvangt het pakket en levert het af op LAN2. Welke MAC-adressen staan in dit frame?',
+        type:'sel',
+        fields:[
+          {id:'p4s4a', label:'🔗 Bron-MAC (LAN2)', opts:['SS:SS:SS:SS (R2)','RR:RR:RR:RR (R1)','CC:CC:CC:CC (PC-C)','EE:EE:EE:EE (PC-E)'], c:'SS:SS:SS:SS (R2)'},
+          {id:'p4s4b', label:'🔗 Doel-MAC (LAN2)', opts:['EE:EE:EE:EE (PC-E)','DD:DD:DD:DD (PC-D)','SS:SS:SS:SS (R2)','CC:CC:CC:CC (PC-C)'], c:'EE:EE:EE:EE (PC-E)'},
+        ],
+        ok:'✓ R2 → PC-E: bron = SS:SS (R2), doel = EE:EE (PC-E). IP ongewijzigd.',
+        no:'R2 stuurt naar PC-E: bron = SS:SS (R2), doel = EE:EE (PC-E).'},
+
+      { id:'p4s5', badge:'mac', title:'Stap 5 · SW2 leert EE:EE — wat doet SW2?',
+        desc:'SW2 ontvangt het frame van R2 op Fa0/1. Wat leert SW2 en hoe stuurt het door?',
+        type:'sel',
+        fields:[
+          {id:'p4s5a', label:'📥 Leert SW2', opts:['Niets nieuw — SS:SS al gekend op Fa0/1','EE:EE op Fa0/1','SS:SS op Fa0/2','DD:DD op Fa0/1'], c:'Niets nieuw — SS:SS al gekend op Fa0/1'},
+          {id:'p4s5b', label:'📤 Stuurt naar PC-E via', opts:['Flooden naar Fa0/2 en Fa0/3','Forwarden naar Fa0/3','Frame wegooien','Forwarden naar Fa0/1'], c:'Flooden naar Fa0/2 en Fa0/3'},
+        ],
+        ok:'✓ SS:SS al bekend → niets nieuws. EE:EE onbekend → flooden naar Fa0/2 en Fa0/3. PC-E ontvangt het op Fa0/3.',
+        no:'SS:SS is al geleerd (geen nieuwe entry). EE:EE onbekend → flooden naar Fa0/2 en Fa0/3.'},
+
+      { id:'p4s6', badge:'mac', title:'Stap 6 · SW2 leert EE:EE via het antwoord van PC-E',
+        desc:'PC-E stuurt een antwoord terug. SW2 ontvangt dit frame. Welke entry leert SW2?',
+        type:'mac', sw:'sw2',
+        rows:[
+          {mi:'p4s6m', pi:'p4s6p', mo:['EE:EE:EE:EE','DD:DD:DD:DD','SS:SS:SS:SS','AA:AA:AA:AA'], po:['Fa0/1','Fa0/2','Fa0/3'], cm:'EE:EE:EE:EE', cp:'Fa0/3', dev:'PC-E'},
+        ],
+        ok:'✓ SW2 leert EE:EE→Fa0/3 (PC-E). SW2 kent nu alle apparaten in LAN2. Toekomstige frames naar EE:EE gaan gericht naar Fa0/3.',
+        no:'SW2 leert bron-MAC EE:EE van het antwoord-frame, ontvangen op Fa0/3.',
+        macUpd:'sw2'},
+    ]
+  },
+];
+
+// ─── Lab engine ─────────────────────────────────────
+
+let flabSc={}, flabPktIdx=0, flabStepIdx=0;
+
+function renderMacTable(swId){
+  const mac = swId==='sw1' ? sw1Mac : sw2Mac;
+  const tbId = swId==='sw1' ? 'sw1-tbody' : 'sw2-tbody';
+  const tb = document.getElementById(tbId);
+  if(!tb) return;
+  if(!Object.keys(mac).length){
+    tb.innerHTML='<tr><td colspan="3" style="color:var(--muted);text-align:center;font-style:italic;padding:.45rem">leeg</td></tr>';
+    return;
+  }
+  tb.innerHTML = Object.entries(mac).map(([m,{port,dev}])=>
+    `<tr><td style="font-family:var(--mono);font-size:.75rem">${m}</td>
+         <td style="font-family:var(--mono);font-size:.75rem">${port}</td>
+         <td style="color:var(--ok);font-weight:600;font-size:.75rem">✓ ${dev}</td></tr>`
+  ).join('');
+}
+
+function buildFlab(){
+  sw1Mac={}; sw2Mac={}; flabSc={}; flabPktIdx=0; flabStepIdx=0;
+  renderMacTable('sw1'); renderMacTable('sw2');
+  document.getElementById('flab-steps').innerHTML='';
+  document.getElementById('flab-summary').classList.remove('show');
+  renderFlabPkt(0);
+}
+
+function renderFlabPkt(pi){
+  const pkt=FPKTS[pi];
+  if(!pkt) return;
+  const div=document.createElement('div');
+  div.id='fp-'+pkt.id;
+  div.className='ex-card';
+  div.style.marginBottom='1.25rem';
+  div.innerHTML=`
+    <div class="flab-pkt-hdr">
+      <span class="pkt-tag ${pkt.tag}">${pkt.tagLabel}</span>
+      <span class="flab-pkt-tit">${pkt.title}</span>
+    </div>
+    <div style="padding:.85rem 1.1rem">
+      <div style="font-size:.86rem;line-height:1.65;color:var(--text2);margin-bottom:.85rem;background:var(--accent-bg);border:1px solid var(--accent);border-radius:6px;padding:.65rem .9rem">${pkt.intro}</div>
+      <div id="fsteps-${pkt.id}"></div>
+    </div>`;
+  document.getElementById('flab-steps').appendChild(div);
+  renderFlabStep(pkt, 0, pi);
+}
+
+function renderFlabStep(pkt, si, pi){
+  const step=pkt.steps[si];
+  if(!step) return;
+  const container=document.getElementById('fsteps-'+pkt.id);
+  const wrap=document.createElement('div');
+  wrap.id='fstep-'+step.id;
+  wrap.style.cssText='background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:.85rem 1rem;margin-bottom:.7rem;animation:fadeIn .3s ease;';
+
+  const bdg=step.badge==='l3'?'<span class="bl3">Laag 3</span>':step.badge==='l2'?'<span class="bl2">Laag 2</span>':'<span class="bmac">MAC-tabel</span>';
+
+  let inner=`<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem">
+    ${bdg}<strong style="font-size:.84rem;color:var(--text)">${step.title}</strong></div>
+    <div style="font-size:.83rem;line-height:1.65;color:var(--text2);margin-bottom:.75rem">${step.desc}</div>`;
+
+  if(step.type==='sel'){
+    inner+=`<div class="step-fields">`;
+    step.fields.forEach(f=>{
+      inner+=`<div class="step-field"><label>${f.label}</label>
+        <select class="ssel" id="${f.id}">
+          <option value="">— kies —</option>
+          ${f.opts.map(o=>`<option>${o}</option>`).join('')}
+        </select></div>`;
+    });
+    inner+=`</div>`;
+  } else { // mac
+    inner+=`<div class="step-fields">`;
+    step.rows.forEach((r,i)=>{
+      inner+=`<div class="mac-rg">
+        <span class="mac-rl">Rij ${i+1}:</span>
+        <label style="font-size:.75rem;font-weight:600;color:var(--text2)">MAC:</label>
+        <select class="ssel" id="${r.mi}" style="min-width:155px">
+          <option value="">— kies —</option>${r.mo.map(o=>`<option>${o}</option>`).join('')}
+        </select>
+        <label style="font-size:.75rem;font-weight:600;color:var(--text2)">Poort:</label>
+        <select class="ssel" id="${r.pi}" style="min-width:88px">
+          <option value="">— kies —</option>${r.po.map(o=>`<option>${o}</option>`).join('')}
+        </select>
+      </div>`;
+    });
+    inner+=`</div>`;
+  }
+
+  inner+=`<button class="step-chk" onclick="checkFlabStep('${step.id}',${pi},${si})">✓ Controleren</button>
+    <div class="step-fb" id="ffb-${step.id}"></div>`;
+
+  wrap.innerHTML=inner;
+  container.appendChild(wrap);
+  wrap.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function checkFlabStep(sid, pi, si){
+  if(flabSc[sid]!==undefined) return;
+  const pkt=FPKTS[pi], step=pkt.steps[si];
+  const fb=document.getElementById('ffb-'+sid);
+  const wrap=document.getElementById('fstep-'+sid);
+  let ok=true;
+
+  if(step.type==='sel'){
+    step.fields.forEach(f=>{
+      const sel=document.getElementById(f.id); if(!sel) return;
+      // sel.disabled=true;
+      const fok=sel.value===f.c;
+      sel.classList.add(fok?'s-ok':'s-err');
+      if(!fok) ok=false;
+    });
+  } else { // mac
+    step.rows.forEach(r=>{
+      const ms=document.getElementById(r.mi), ps=document.getElementById(r.pi);
+      if(ms){/*ms.disabled=true;*/ const mok=ms.value===r.cm; ms.classList.add(mok?'s-ok':'s-err'); if(!mok) ok=false;}
+      if(ps){/*ps.disabled=true;*/ const pok=ps.value===r.cp; ps.classList.add(pok?'s-ok':'s-err'); if(!pok) ok=false;}
+    });
+  }
+
+  flabSc[sid]=ok;
+
+  if(ok){
+    fb.innerHTML=step.ok; fb.className='step-fb show ok';
+    wrap.style.borderColor='var(--ok-border)'; wrap.style.opacity='.7';
+    correct++;
+    // Apply MAC table updates
+    if(step.macUpd){
+      step.rows.forEach(r=>{
+        const target = step.macUpd==='sw1' ? sw1Mac : sw2Mac;
+        target[r.cm]={port:r.cp, dev:r.dev};
+      });
+      renderMacTable(step.macUpd);
+    }
+    if(step.extraMacUpd){
+      const t2 = step.extraMacUpd.sw==='sw1' ? sw1Mac : sw2Mac;
+      t2[step.extraMacUpd.mac]={port:step.extraMacUpd.port, dev:step.extraMacUpd.dev};
+      renderMacTable(step.extraMacUpd.sw);
+    }
+    upd();
+    setTimeout(()=>{
+      const nextSi=si+1;
+      if(nextSi<pkt.steps.length){
+        renderFlabStep(pkt, nextSi, pi);
+      } else {
+        // packet done
+        document.getElementById('fp-'+pkt.id).style.borderColor='var(--ok)';
+        const nextPi=pi+1;
+        if(nextPi<FPKTS.length){
+          setTimeout(()=>{
+            renderFlabPkt(nextPi);
+            document.getElementById('fp-'+FPKTS[nextPi].id)?.scrollIntoView({behavior:'smooth',block:'nearest'});
+          }, 400);
+        } else {
+          setTimeout(()=>document.getElementById('flab-summary').classList.add('show'), 500);
+        }
+      }
+    }, 550);
+  } else {
+    fb.innerHTML='✗ '+step.no; fb.className='step-fb show bad';
+    wrap.style.borderColor='var(--err-border)';
+    wrong++; upd();
+    // Re-enable inputs and add retry button
+    // setTimeout(()=>{
+      if(step.type==='sel'){
+        step.fields.forEach(f=>{
+          const sel=document.getElementById(f.id); if(!sel) return;
+          sel.disabled=false;
+          sel.className='ssel';
+          sel.value='';
+        });
+      } else {
+        step.rows.forEach(r=>{
+          const ms=document.getElementById(r.mi), ps=document.getElementById(r.pi);
+          if(ms){ms.disabled=false; ms.className='ssel'; ms.value='';}
+          if(ps){ps.disabled=false; ps.className='ssel'; ps.value='';}
+        });
+      }
+      delete flabSc[sid];
+      fb.className='step-fb show bad';
+      const chkBtn=wrap.querySelector('.step-chk');
+      if(chkBtn) chkBtn.style.display='';
+      fb.innerHTML='✗ '+step.no+'<br><span style="font-size:.75rem;color:var(--muted)">↑ Pas je antwoord aan en probeer opnieuw.</span>';
+    // }, 1200);
+  }
+}
+
+function resetFlab(){
+  Object.values(flabSc).forEach(ok=>{ if(ok) correct--; else wrong--; });
+  buildFlab(); upd();
+}
+buildFlab();
+</script>
+</body>
+</html>
